@@ -176,7 +176,7 @@ function TriggerAction_Simskill takes nothing returns nothing
     call UpdateSimslotsStatus(u)
 endfunction
 //===========================================================================
-function UnitInitSimslotData takes unit u, integer slotno, integer abilcode returns nothing
+function UnitInitSimslot takes unit u, integer slotno, integer abilcode returns nothing
     local integer i
     local integer max
     local ability obj
@@ -209,7 +209,7 @@ function InitDefaultSimslotData takes unit u returns nothing
         set str = SubString(skillList, i, i + 4)
         set abilcode = S2C(str)
         if (abilcode != 'aamk') then//attributemodskill
-            call UnitInitSimslotData(u, slot, abilcode)
+            call UnitInitSimslot(u, slot, abilcode)
         endif
         call UnitSetSimedAbility(u, slot, abilcode)
 
@@ -278,6 +278,7 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
     local integer i 
     local integer simscode
     local integer abilcode
+    local integer bookid
     if (IsSimSkillRune(itemid)) then
         if (UnitGetSimedAbility(u, MAX_SKILLSLOT_COUNT)> 0) then
              call RemoveItem(UnitAddItemById(u, ITEM_OUT_OF_SKLIICOUNT))
@@ -289,7 +290,15 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
             set simscode = UnitGetSimedAbility(u, i)
             if (simscode < 1) then
                 call RemoveItem(GetManipulatedItem())
-                call UnitInitSimslotData(u, i, abilcode)
+                ///
+                set bookid = ABILITY_SIMSKILL_BOOK + i
+                call UnitRemoveAbility(u, bookid)
+                call UnitAddAbility(u, bookid)
+                call UnitMakeAbilityPermanent(u, true, bookid)
+                call BlzUnitHideAbility(u, bookid, true)
+                call UnitMakeAbilityPermanent(u, true, ToSimslotCode(i))
+                ///
+                call UnitInitSimslot(u, i, abilcode)
                 call UnitSetSimedAbility(u, i, abilcode)
                 call UpdateSimslotsStatusEnum(u, i)
                 call UpdateSimslotIcon(u, i)
@@ -455,6 +464,8 @@ endfunction
 function InitRuneSystem takes nothing returns nothing
     local trigger trg
     local player p
+
+    set g_groupShadowmeld = CreateGroup()
 
     set p = GetLocalPlayer()
     call SetPlayerAbilityAvailable(p, ABILITY_OBSOLETE, false)

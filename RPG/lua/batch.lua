@@ -20,6 +20,7 @@ function generate_item(abilcode, abilObj)
     obj.powerup = 0
     obj.drop = 1
     obj.abillist = 'NULL'
+    obj.class = 'Campaign'
     if abilObj.levels > 1 then
         obj.Ubertip = abilObj.ResearchUbertip
     else
@@ -181,7 +182,7 @@ function batch_execute()
     local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANab,ANrf,ANht,ANca,ANso"
     batch_generate(heroAbilList, clone_ability)
 
-    local unitAbilityList = "Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Adev,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ANfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
+    local unitAbilityList = "Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ANfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
     batch_generate(unitAbilityList, clone_ability)
 end
 ------------------------------------------------------------------------------------------------------------------
@@ -231,11 +232,11 @@ function prev_proc()
         --obj.permanent()
     end
     -------------------------------------------------------------------------------------
-    local obj = slk.item['rman'] : new 'Rful'
+    local obj = slk.item['rman'] : new 'rful'
     obj.abillist = 'Asb1'
     obj.Name = "技能栏已满。"
 
-    obj =  slk.item['rman'] : new 'Rrpt'
+    obj =  slk.item['rman'] : new 'rrpt'
     obj.abillist = 'Asb1'
     obj.Name = "技能已存在。"
     -------------------------------------------------------------------------------------
@@ -248,6 +249,7 @@ function prev_proc()
     obj.Name = "获得符文技能"
     obj.EditorSuffix = "(特效)"
     obj.DataA1 = 0
+    obj.TargetArt = "Abilities\\Spells\\Items\\StaffOfPurification\\PurificationCaster.mdl"
 
     obj =  slk.item['rman'] : new 'rrfx'
     obj.Name = "获得符文技能"
@@ -320,7 +322,7 @@ function exec_proc()
     bshm.Buffubertip = "提高自身攻击速度和移动速度。"
     bshm.Buffart = Ashm.Art
     bshm.race = Ashm.race
-    generate_item('ashm', ashm)
+    generate_item('Ashm', ashm)
 end
 ----------------------------------------------------------------------------------------
 function post_proc()
