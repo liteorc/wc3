@@ -279,8 +279,14 @@ function TriggerAction_GetShadowCloak takes nothing returns nothing
         call UpdateShowdowMeldBonus(u)
     endif
 endfunction
-function CreateFloatText takes unit u, string text returns nothing
-
+function CreateFloatText takes unit u, string s returns nothing
+    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 12, 0, 100, 100, 0)
+    call SetTextTagLifespan(tag, 2.5)
+    call SetTextTagPermanent(tag, false)
+    call SetTextTagVelocityBJ(tag, 256, 90)
+    call SetTextTagFadepoint(tag, 0.5)
+    call TriggerSleepAction(1.5)
+    call DestroyTextTag(tag)
 endfunction
 function TriggerAction_HeroUseItem takes nothing returns nothing
     local unit  u = GetManipulatingUnit()
@@ -306,7 +312,7 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
                 call UpdateSimslotsStatusEnum(u, i)
                 call UpdateSimslotIcon(u, i)
                 call UnitAddItemById(u, ITEM_RUNE_EFFECT)
-                //call CreateFloatText(u, GetObjectName(itemid))//TODO
+                call CreateFloatText(u, "获得技能 - " + GetObjectName(abilcode))
                 return
             endif
             if (IsIdenticalAbility(abilcode, simscode)) then
