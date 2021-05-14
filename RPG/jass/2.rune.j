@@ -3,8 +3,8 @@ globals
     constant integer ABILITY_SIMSKILL_BOOK = 'Smb0'
     //constant integer ABILITY_SIMSKILL_SLOT = 'SLO0'
     constant integer ABILITY_SHADOWMELD_BONUS = 'asmb'
-    constant integer ITEM_OUT_OF_SKLIICOUNT = 'Rful'
-    constant integer ITEM_REPEAT_SKILL = 'Rrpt'
+    constant integer ITEM_OUT_OF_SKLIICOUNT = 'rful'
+    constant integer ITEM_REPEAT_SKILL = 'rrpt'
     constant integer ITEM_CLOAK_OF_SHADOWS = 'clsd'
     constant integer ITEM_RUNE_EFFECT = 'rrfx'
 
