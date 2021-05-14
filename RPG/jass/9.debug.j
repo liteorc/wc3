@@ -59,15 +59,19 @@ function TriggerAction_SelectUnit takes nothing returns nothing
     set ACTOR = GetTriggerUnit()
     call DEBUGMSG("当前指令目标：" + GetUnitName(ACTOR) + I2S(GetHandleId(ACTOR)))
 endfunction
-
+//===========================================================================
+function DebugCheats takes nothing returns nothing
+    call Cheat("greedisgood 99999")
+    call Cheat("warpten")
+    //call Cheat("iseedeadpeople")
+    //call Cheat("whosyourdaday")
+endfunction
+//===========================================================================
 function Debug takes nothing returns nothing
     local string str
     local trigger trg
     local player p = GetLocalPlayer()
-
-    call Cheat("greedisgood 99999")
-    call Cheat("warpten")
-    
+  
     set trg = CreateTrigger()
     call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SELECTED, null)
     call TriggerAddAction(trg, function TriggerAction_SelectUnit)
@@ -75,6 +79,8 @@ function Debug takes nothing returns nothing
     set trg = CreateTrigger()
     call TriggerRegisterPlayerChatEvent(trg, p, "cmd:", false)
     call TriggerAddAction(trg, function TiggerAction_Command)
+
+    call DebugCheats()
 
     set str = "|cffffff00DEBUG模式已开启，输入\"cmd:\"+\"指令代码\"进行调试|r|n|n"
     set str = str + "trace.on/off     启用/禁用调试输出|n"
