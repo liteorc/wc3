@@ -14,19 +14,29 @@ globals
     group g_groupShadowmeld
 endglobals
 //===========================================================================
-function UnitDisableAbilitySafely takes unit u, integer abilcode, boolean disable returns nothing
-    local integer flag = LoadInteger(g_hashtable, GetHandleId(u), abilcode)
-    if (flag > 0 and disable) or (flag < 0 and not disable) then
+function SetUnitAbilityState takes unit u, integer abilcode, boolean disabled, boolean hidden returns nothing 
+    local integer state = LoadInteger(g_hashtable, GetHandleId(u), abilcode)
+    local integer flag = 0
+
+    if (hidden) then
+        set flag = 1
+    endif
+    if (disabled) then
+        set flag = flag + 2
+    endif
+    if (state  == flag) then
         return//do nothing
     endif
-    if disable then
-        set flag = 1
-    else
-        set flag = -1
+
+    if (hidden) then
+        call BlzUnitDisableAbility(u, abilcode, disabled, hidden)
+    else//not hidden
+        // if (BlzBitAnd(state, 1) == 0) then//TODO: 验证如果当前是显示的，需要先隐藏再显示来刷新状态？
+        //     call BlzUnitDisableAbility(u, abilcode, disabled, true)
+        // endif
+        call BlzUnitDisableAbility(u, abilcode, disabled, hidden)
     endif
     call SaveInteger(g_hashtable, GetHandleId(u), abilcode, flag)
-    call BlzUnitDisableAbility(u, abilcode, disable, true)
-    call BlzUnitDisableAbility(u, abilcode, disable, false)
 endfunction
 //===========================================================================
 function IsIdenticalAbility takes integer code1, integer code2 returns boolean
@@ -48,10 +58,10 @@ endfunction
 function UnitId2EnginskillId takes integer unitid returns integer
     return ModuloInteger(unitid, 0x1000000) + 'e' * 0x1000000
 endfunction
-function UnitGetSimedAbility takes unit u, integer slotNo returns integer
+function LoadUnitSimedAbility takes unit u, integer slotNo returns integer
     return LoadInteger(g_hashtable, GetHandleId(u), 0xab1 + slotNo)
 endfunction
-function UnitSetSimedAbility takes unit u, integer slotNo, integer abilcode returns nothing
+function SaveUnitSimedAbility takes unit u, integer slotNo, integer abilcode returns nothing
     call SaveInteger(g_hashtable, GetHandleId(u), 0xab1 + slotNo, abilcode)
 endfunction
 function ToSimslotCode takes integer slotNo returns integer
@@ -72,17 +82,17 @@ function UpdateSimslotsStatusEnum takes unit u, integer slotNo returns nothing
     local ability simsobj
     
     set simslot = ToSimslotCode(slotNo)
-    set abilcode = UnitGetSimedAbility(u, slotNo)
+    set abilcode = LoadUnitSimedAbility(u, slotNo)
     if (abilcode < 1) then
-        call BlzUnitHideAbility(u, simslot, true)
+        call SetUnitAbilityState(u, simslot, false, true)
         return
     elseif (abilcode == 'aamk') then
-        call UnitDisableAbilitySafely(u, simslot, GetHeroSkillPoints(u) < 1)
+        call SetUnitAbilityState(u, simslot, GetHeroSkillPoints(u) < 1, false)
         return
     endif
     set abilLevel = GetUnitAbilityLevel(u, abilcode)
     if (LoadAbilityMaxLevel(abilcode) <= abilLevel) then
-        call BlzUnitHideAbility(u, simslot, true)
+        call SetUnitAbilityState(u, simslot, false, true)
         return
     endif
     ///-----------------------------------------------------
@@ -104,7 +114,7 @@ function UpdateSimslotsStatusEnum takes unit u, integer slotNo returns nothing
         set ubertip = "|cffffff00需要:|n - 英雄等级:  " + I2S(requireLevel) + "|r|n|n" + ubertip
     endif 
     call BlzSetAbilityStringLevelField(simsobj , ABILITY_SLF_TOOLTIP_NORMAL_EXTENDED, abilLevel, ubertip)  
-    call UnitDisableAbilitySafely(u, simslot, disable)
+    call SetUnitAbilityState(u, simslot, disable, false)
 endfunction
 function UpdateSimslotsStatus takes unit u returns nothing
     local integer i = 1
@@ -128,7 +138,7 @@ function UpdateShowdowMeldBonus takes unit u returns nothing
         call UnitRemoveAbility(u, ABILITY_SHADOWMELD_BONUS)
     else
         call UnitAddAbility(u, ABILITY_SHADOWMELD_BONUS)
-        call BlzUnitHideAbility(u, ABILITY_SHADOWMELD_BONUS, true)
+        call SetUnitAbilityState(u, ABILITY_SHADOWMELD_BONUS, false, true)
         call UnitMakeAbilityPermanent(u, true, ABILITY_SHADOWMELD_BONUS)
     endif
 endfunction
@@ -139,7 +149,7 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
     local integer slotnumber
     
     set slotnumber = ToSimslotNo(slotcode)
-    set abilcode = UnitGetSimedAbility(u, slotnumber)
+    set abilcode = LoadUnitSimedAbility(u, slotnumber)
     set abillevel = GetUnitAbilityLevel(u, abilcode)
     if (abillevel > 0) then
         call SetUnitAbilityLevel(u, abilcode, abillevel + 1)
@@ -176,7 +186,7 @@ function TriggerAction_Simskill takes nothing returns nothing
     call UpdateSimslotsStatus(u)
 endfunction
 //===========================================================================
-function UnitInitSimslot takes unit u, integer slotno, integer abilcode returns nothing
+function InitUnitSimslot takes unit u, integer slotno, integer abilcode returns nothing
     local integer i
     local integer max
     local ability obj
@@ -192,7 +202,7 @@ function UnitInitSimslot takes unit u, integer slotno, integer abilcode returns 
     call BlzSetAbilityIntegerField(obj, ABILITY_IF_LEVELS, max)
     call BlzSetAbilityIntegerField(obj, ABILITY_IF_REQUIRED_LEVEL, LoadAbilityRequireLevel(abilcode))
 endfunction
-function InitDefaultSimslotData takes unit u returns nothing
+function InitDefaultSimslotList takes unit u returns nothing
     local integer abilcode
     local string str
     local integer i
@@ -209,9 +219,9 @@ function InitDefaultSimslotData takes unit u returns nothing
         set str = SubString(skillList, i, i + 4)
         set abilcode = S2C(str)
         if (abilcode != 'aamk') then//attributemodskill
-            call UnitInitSimslot(u, slot, abilcode)
+            call InitUnitSimslot(u, slot, abilcode)
         endif
-        call UnitSetSimedAbility(u, slot, abilcode)
+        call SaveUnitSimedAbility(u, slot, abilcode)
 
         if (abilcode == 'ashm') then
             if (GetUnitAbilityLevel(u, 'Ashm') > 0) then
@@ -225,7 +235,7 @@ function InitDefaultSimslotData takes unit u returns nothing
     endloop
 endfunction
 function UpdateSimslotIcon takes unit u, integer slotNo returns boolean
-    local integer abilcode = UnitGetSimedAbility(u, slotNo)
+    local integer abilcode = LoadUnitSimedAbility(u, slotNo)
     if (abilcode > 0) then
         call BlzSetAbilityIcon(ToSimslotCode(slotNo), LoadAbilityResearchIcon(abilcode))
         return true
@@ -280,26 +290,19 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
     local integer abilcode
     local integer bookid
     if (IsSimSkillRune(itemid)) then
-        if (UnitGetSimedAbility(u, MAX_SKILLSLOT_COUNT)> 0) then
+        if (LoadUnitSimedAbility(u, MAX_SKILLSLOT_COUNT)> 0) then
              call RemoveItem(UnitAddItemById(u, ITEM_OUT_OF_SKLIICOUNT))
             return
         endif
         set i = 1
         set abilcode = RuneId2AbilityId(itemid)
         loop
-            set simscode = UnitGetSimedAbility(u, i)
+            set simscode = LoadUnitSimedAbility(u, i)
             if (simscode < 1) then
                 call RemoveItem(GetManipulatedItem())
-                ///
-                set bookid = ABILITY_SIMSKILL_BOOK + i
-                call UnitRemoveAbility(u, bookid)
-                call UnitAddAbility(u, bookid)
-                call UnitMakeAbilityPermanent(u, true, bookid)
-                call BlzUnitHideAbility(u, bookid, true)
-                call UnitMakeAbilityPermanent(u, true, ToSimslotCode(i))
-                ///
-                call UnitInitSimslot(u, i, abilcode)
-                call UnitSetSimedAbility(u, i, abilcode)
+                call SetUnitAbilityState(u, ToSimslotCode(i), false, false)
+                call InitUnitSimslot(u, i, abilcode)
+                call SaveUnitSimedAbility(u, i, abilcode)
                 call UpdateSimslotsStatusEnum(u, i)
                 call UpdateSimslotIcon(u, i)
                 call UnitAddItemById(u, ITEM_RUNE_EFFECT)
@@ -316,14 +319,14 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
     elseif (itemid == 'retr') then
         set i = 1
         loop
-            set abilcode = UnitGetSimedAbility(u, i)
+            set abilcode = LoadUnitSimedAbility(u, i)
             exitwhen abilcode < 1
             call UnitRemoveAbility(u, abilcode)
-            call UnitSetSimedAbility(u, i, 0)
+            call SaveUnitSimedAbility(u, i, 0)
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
-        call InitDefaultSimslotData(u)  
+        call InitDefaultSimslotList(u)  
         set i = GetHeroLevel(u) + GetHeroLevel(u) / 3 - GetHeroSkillPoints(u)
         set itemid = GetUnitTypeId(u)
         if (itemid == 'Emoo' or itemid == 'Ewar' or itemid == 'Ntin') then
@@ -346,7 +349,7 @@ function UnitSetupSimSystem takes unit u returns nothing
     loop
         set bookId = ABILITY_SIMSKILL_BOOK + i
         call UnitAddAbility(u, bookId)
-        call BlzUnitHideAbility(u, bookId, true)
+        call SetUnitAbilityState(u, bookId, false, true)
         call UnitMakeAbilityPermanent(u, true, bookId)
         set i = i + 1
         exitwhen i > MAX_SKILLSLOT_COUNT
@@ -357,9 +360,9 @@ function UnitSetupSimSystem takes unit u returns nothing
         set i = i + 1
         exitwhen i > MAX_SKILLSLOT_COUNT
     endloop
-    call BlzUnitHideAbility(u, ABILITY_SIMSKILL_BOOK, false)
+    call SetUnitAbilityState(u, ABILITY_SIMSKILL_BOOK, false, false)
 
-    call InitDefaultSimslotData(u)
+    call InitDefaultSimslotList(u)
     call UpdateSimslotsStatus(u)
     //===============================================
 
@@ -398,19 +401,19 @@ function ReviseEngineeringUpgrade takes unit u returns nothing
 
     //1:Pocket Factory
     set abilcode = 'ANs0' + level
-    call UnitSetSimedAbility(u, 1, abilcode)
+    call SaveUnitSimedAbility(u, 1, abilcode)
 
     //2:Cluster Rockets
     set abilcode = 'ANc0' + level
-    call UnitSetSimedAbility(u, 2, abilcode)
+    call SaveUnitSimedAbility(u, 2, abilcode)
 
     //4:Robo-Goblin
     set abilcode = 'ANg0' + level
-    call UnitSetSimedAbility(u, 4, abilcode)    
+    call SaveUnitSimedAbility(u, 4, abilcode)    
 
     //6:Demolish
     set abilcode = 'ANd0' + level
-    call UnitSetSimedAbility(u, 6, abilcode)     
+    call SaveUnitSimedAbility(u, 6, abilcode)     
 
     ///fixed blizzard's bug
     // call UnitRemoveAbility(u, abilcode)
