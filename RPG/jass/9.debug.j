@@ -34,12 +34,22 @@ function TiggerAction_Command takes nothing returns nothing
     elseif (str == "item.clear") then
         call EnumItemsInRect(bj_mapInitialPlayableArea, null, function ForEachItemInMap)
     elseif (StringContains(str, "item.")) then
-        set str = SubString(str, 5, StringLength(str))
-        set id = S2C(str)
+        set id = S2C(SubString(str, 5, 8))
         if (StringLength(GetObjectName(id)) < 1) then
             call DEBUGMSG("无效的物品ID：" + str)
         else
-            call CreateItem(id, GetUnitX(ACTOR), GetUnitY(ACTOR))
+            set str = SubString(str, 9, StringLength(str))
+            if (StringLength(str) > 0) then
+                set bj_forLoopAIndexEnd = S2I(str)
+            else
+                set bj_forLoopAIndexEnd = 1
+            endif
+            set bj_forLoopAIndex = 0
+            loop
+                call CreateItem(id, GetUnitX(ACTOR), GetUnitY(ACTOR))
+                set bj_forLoopAIndex = bj_forLoopAIndex + 1
+                exitwhen bj_forLoopAIndex > bj_forLoopAIndexEnd
+            endloop
         endif
     elseif (str == "cls") then
         call ClearTextMessages()
