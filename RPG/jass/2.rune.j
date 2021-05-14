@@ -31,9 +31,9 @@ function SetUnitAbilityState takes unit u, integer abilcode, boolean disabled, b
     if (hidden) then
         call BlzUnitDisableAbility(u, abilcode, disabled, hidden)
     else//not hidden
-        // if (BlzBitAnd(state, 1) == 0) then//TODO: 验证如果当前是显示的，需要先隐藏再显示来刷新状态？
-        //     call BlzUnitDisableAbility(u, abilcode, disabled, true)
-        // endif
+        if (BlzBitAnd(state, 1) == 0) then
+            call BlzUnitDisableAbility(u, abilcode, disabled, true)
+        endif
         call BlzUnitDisableAbility(u, abilcode, disabled, hidden)
     endif
     call SaveInteger(g_hashtable, GetHandleId(u), abilcode, flag)
@@ -104,7 +104,7 @@ function UpdateSimslotsStatusEnum takes unit u, integer slotNo returns nothing
         set disable = requireLevel > heroLevel//level require
     endif
     if (not disable) then
-        set requireLevel = abilLevel * HERO_ABILITY_LEVEL_SKIP + 1
+        set requireLevel = requireLevel + abilLevel * HERO_ABILITY_LEVEL_SKIP
         set disable = requireLevel > heroLevel//skip level require
     endif
     if (not disable) then
@@ -280,10 +280,10 @@ function TriggerAction_GetShadowCloak takes nothing returns nothing
     endif
 endfunction
 function CreateFloatText takes unit u, string s returns nothing
-    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 12, 0, 100, 100, 0)
-    call SetTextTagLifespan(tag, 2.5)
+    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 9, 100, 100, 0, 0)
+    call SetTextTagLifespan(tag, 2)
     call SetTextTagPermanent(tag, false)
-    call SetTextTagVelocityBJ(tag, 256, 90)
+    call SetTextTagVelocityBJ(tag, 200, 90)
     call SetTextTagFadepoint(tag, 0.5)
     call TriggerSleepAction(1.5)
     call DestroyTextTag(tag)

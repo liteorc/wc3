@@ -38,6 +38,7 @@ function clone_ability(abilcode)
     obj.EditorSuffix = "(clone)"
     obj.hero = 1
     obj.checkDep = 0
+    obj.reqLevel = 3
     if (string.match(obj.Art, "Immolation")) then
         obj.ResearchArt = "ReplaceableTextures\\CommandButtons\\BTNImmolationOn.blp"
     else

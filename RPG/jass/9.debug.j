@@ -34,8 +34,8 @@ function TiggerAction_Command takes nothing returns nothing
     elseif (str == "item.clear") then
         call EnumItemsInRect(bj_mapInitialPlayableArea, null, function ForEachItemInMap)
     elseif (StringContains(str, "item.")) then
-        set id = S2C(SubString(str, 5, 8))
-        if (StringLength(GetObjectName(id)) < 1) then
+        set id = S2C(SubString(str, 5, 9))
+        if (not IsItemIdPawnable(id)) then
             call DEBUGMSG("无效的物品ID：" + str)
         else
             set str = SubString(str, 9, StringLength(str))
@@ -82,10 +82,10 @@ function Debug takes nothing returns nothing
 
     call DebugCheats()
 
-    set str = "|cffffff00DEBUG模式已开启，输入\"cmd:\"+\"指令代码\"进行调试|r|n|n"
-    set str = str + "trace.on/off     启用/禁用调试输出|n"
-    set str = str + "cls                    清空聊天信息|n"
-    set str = str + "item.xxxx         创建物品|n"
-    set str = str + "item.clear        清空物品|n"
+    set str = "|cffffff00DEBUG模式已开启，请输入cmd+冒号+指令代码(如cmd:cls)进行调试|r\n\n"
+    set str = str + "trace.on/off     启用/禁用调试输出\n"
+    set str = str + "cls              清空聊天信息\n"
+    set str = str + "item.xxxx        创建物品\n"
+    set str = str + "item.clear       清空物品\n"
     call DEBUGMSG(str)
 endfunction
