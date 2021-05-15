@@ -9,6 +9,11 @@ function DEBUGMSG takes string text returns nothing
         call DisplayTextToPlayer(GetLocalPlayer(), 0, 0, text)
     endif
 endfunction
+//===========================================================================
+function Test takes nothing returns nothing
+    call DEBUGMSG("英雄数量" + I2S(GetPlayerTechCount(GetLocalPlayer(), 'HERO', true)))
+endfunction
+//===========================================================================
 function ForEachItemInMap takes nothing returns nothing
     local item i = GetEnumItem()
     call DEBUGMSG("删除物品："+GetItemName(i)+I2S(GetHandleId(i)))
@@ -23,6 +28,8 @@ function TiggerAction_Command takes nothing returns nothing
 
     if (ACTOR == null) then
         call DEBUGMSG("请选择一个指令目标")
+    elseif(str == "test") then
+        call Test()
     elseif (StringContains(str, "trace.")) then
         if (str == "trace.on") then
             call DEBUGMSG("调试信息已开启")
@@ -55,10 +62,10 @@ function TiggerAction_Command takes nothing returns nothing
         call ClearTextMessages()
     endif
 endfunction
-function TriggerAction_SelectUnit takes nothing returns nothing
-    set ACTOR = GetTriggerUnit()
-    call DEBUGMSG("当前指令目标：" + GetUnitName(ACTOR) + I2S(GetHandleId(ACTOR)))
-endfunction
+// function TriggerAction_SelectUnit takes nothing returns nothing
+//     set ACTOR = GetTriggerUnit()
+//     call DEBUGMSG("当前指令目标：" + GetUnitName(ACTOR) + I2S(GetHandleId(ACTOR)))
+// endfunction
 //===========================================================================
 function DebugCheats takes nothing returns nothing
     call Cheat("greedisgood 99999")
@@ -72,15 +79,15 @@ function Debug takes nothing returns nothing
     local trigger trg
     local player p = GetLocalPlayer()
   
-    set trg = CreateTrigger()
-    call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SELECTED, null)
-    call TriggerAddAction(trg, function TriggerAction_SelectUnit)
+    // set trg = CreateTrigger()
+    // call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SELECTED, null)
+    // call TriggerAddAction(trg, function TriggerAction_SelectUnit)
 
     set trg = CreateTrigger()
     call TriggerRegisterPlayerChatEvent(trg, p, "cmd:", false)
     call TriggerAddAction(trg, function TiggerAction_Command)
 
-    call DebugCheats()
+    //call DebugCheats()
 
     set str = "|cffffff00DEBUG模式已开启，请输入cmd+冒号+指令代码(如cmd:cls)进行调试|r\n\n"
     set str = str + "trace.on/off     启用/禁用调试输出\n"

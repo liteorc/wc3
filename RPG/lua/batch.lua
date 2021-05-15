@@ -117,6 +117,7 @@ function generate_simskillbook(bookid, abillist)
     book.DataD = 8
     book.DataE = "simskill"
     book.item = 0
+    book.Buttonpos = {0,-11}
     return book
 end
 ------------------------------------------------------------------------------------------------------------------
@@ -187,24 +188,13 @@ function batch_execute()
     batch_generate(unitAbilityList, clone_ability)
 end
 ------------------------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------
-function prev_proc()
-    local slk = require 'slk'
-
-    local book = generate_simskillbook('Smb0', '')
-    book.Name = "学习技能"
-    book.Tip = "学习技能"
-    book.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
-    book.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
-    book.Hotkey = "O"
-    book.Buttonpos = {0,1}
-    --book.permanent()
-    -------------------------------------------------------------------------------------
+function generate_simslot(index)
     local hotkeys = { 'Q', 'W', 'E', 'R', 'A', 'D', 'F', 'T' }
     local str = ""
     for i = 1, 8 do
-        local slotid = 'SLO'..i
-        book = generate_simskillbook('Smb'..i, str..slotid)
+        local slotid = 'SL'..index..i
+        book = generate_simskillbook('SB'..index..i, str..slotid)
+        book.EditorSuffix = "- hero"..index
         str = str.."APai,"
 
         local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", 'Absk', slotid))
@@ -221,6 +211,7 @@ function prev_proc()
         obj.Art = ""
         obj.Hotkey = hotkeys[i]
         obj.race = book.race
+        obj.EditorSuffix = "- hero"..index
         for i = 1, levels do
             obj['Dur'..i] = 0.001
             obj['HeroDur'..i] = 0.001
@@ -232,6 +223,23 @@ function prev_proc()
         end
         --obj.permanent()
     end
+end
+------------------------------------------------------------------------------------------------------------------
+function prev_proc()
+    local slk = require 'slk'
+
+    local book = generate_simskillbook('SB00', '')
+    book.Name = "学习技能"
+    book.Tip = "学习技能"
+    book.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
+    book.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
+    book.Hotkey = "O"
+    book.Buttonpos = {0,1}
+    --book.permanent()
+    -------------------------------------------------------------------------------------
+    for i = 1,3 do
+        generate_simslot(i)
+    end    
     -------------------------------------------------------------------------------------
     local obj = slk.item['rman'] : new 'rful'
     obj.abillist = 'Asb1'
