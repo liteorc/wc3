@@ -11,7 +11,7 @@ function DEBUGMSG takes string text returns nothing
 endfunction
 //===========================================================================
 function Test takes nothing returns nothing
-    call DEBUGMSG("英雄数量" + I2S(GetPlayerTechCount(GetLocalPlayer(), 'HERO', true)))
+
 endfunction
 //===========================================================================
 function ForEachItemInMap takes nothing returns nothing
@@ -51,7 +51,7 @@ function TiggerAction_Command takes nothing returns nothing
             else
                 set bj_forLoopAIndexEnd = 1
             endif
-            set bj_forLoopAIndex = 0
+            set bj_forLoopAIndex = 1
             loop
                 call CreateItem(id, GetUnitX(ACTOR), GetUnitY(ACTOR))
                 set bj_forLoopAIndex = bj_forLoopAIndex + 1
@@ -62,10 +62,10 @@ function TiggerAction_Command takes nothing returns nothing
         call ClearTextMessages()
     endif
 endfunction
-// function TriggerAction_SelectUnit takes nothing returns nothing
-//     set ACTOR = GetTriggerUnit()
-//     call DEBUGMSG("当前指令目标：" + GetUnitName(ACTOR) + I2S(GetHandleId(ACTOR)))
-// endfunction
+function TriggerAction_SelectUnit takes nothing returns nothing
+    set ACTOR = GetTriggerUnit()
+    //call DEBUGMSG("当前指令目标：" + GetUnitName(ACTOR) + I2S(GetHandleId(ACTOR)))
+endfunction
 //===========================================================================
 function DebugCheats takes nothing returns nothing
     call Cheat("greedisgood 99999")
@@ -79,9 +79,9 @@ function Debug takes nothing returns nothing
     local trigger trg
     local player p = GetLocalPlayer()
   
-    // set trg = CreateTrigger()
-    // call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SELECTED, null)
-    // call TriggerAddAction(trg, function TriggerAction_SelectUnit)
+    set trg = CreateTrigger()
+    call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SELECTED, null)
+    call TriggerAddAction(trg, function TriggerAction_SelectUnit)
 
     set trg = CreateTrigger()
     call TriggerRegisterPlayerChatEvent(trg, p, "cmd:", false)

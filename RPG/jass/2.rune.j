@@ -3,6 +3,10 @@ globals
     constant integer ABILITY_SIMSKILL_BOOK = 'SB00'
     constant integer ABILITY_SIMSKILL_SLOT = 'SL00'
     constant integer ABILITY_SHADOWMELD_BONUS = 'asmb'
+    constant integer ABILITY_WELLSPRING_MANA = 'awsM'
+    constant integer ABILITY_WELLSPRING_RESTORE = 'aIrm'
+
+
     constant integer ITEM_OUT_OF_SKLIICOUNT = 'rful'
     constant integer ITEM_REPEAT_SKILL = 'rrpt'
     constant integer ITEM_CLOAK_OF_SHADOWS = 'clsd'
@@ -148,6 +152,21 @@ function UpdateShowdowMeldBonus takes unit u returns nothing
     endif
 endfunction
 //===========================================================================
+function PostProc_SelectHeroSimskill takes unit u, integer abilcode, integer abillevel returns nothing
+    if (abillevel > 0) then
+        if (abilcode == 'ashm') then
+            call GroupAddUnit(g_groupShadowmeld, u)
+            call UpdateShowdowMeldBonus(u)
+        endif
+    else
+        if (abilcode == 'aews') then
+            call UnitAddAbility(u, ABILITY_WELLSPRING_MANA)
+            call UnitAddAbility(u, ABILITY_WELLSPRING_RESTORE)
+            call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_MANA)
+            call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_RESTORE)
+        endif
+    endif
+endfunction
 function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus returns nothing
     local integer abilcode
     local integer abillevel
@@ -158,16 +177,12 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
     set abillevel = GetUnitAbilityLevel(u, abilcode)
     if (abillevel > 0) then
         call SetUnitAbilityLevel(u, abilcode, abillevel + 1)
-
-        if (abilcode == 'ashm') then
-            call GroupAddUnit(g_groupShadowmeld, u)
-            call UpdateShowdowMeldBonus(u)
-        endif
-
     else
         call UnitAddAbility(u, abilcode)
         call UnitMakeAbilityPermanent(u, true, abilcode)
     endif
+    call PostProc_SelectHeroSimskill(u, abilcode, abillevel)
+
     set abillevel = GetUnitAbilityLevel(u, slotcode)
     call SetUnitAbilityLevel(u, slotcode, abillevel + 1)
     if updateStatus then

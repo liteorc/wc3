@@ -184,7 +184,7 @@ function batch_execute()
     local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANab,ANrf,ANht,ANca,ANso"
     batch_generate(heroAbilList, clone_ability)
 
-    local unitAbilityList = "Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ANfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
+    local unitAbilityList = "Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ACfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
     batch_generate(unitAbilityList, clone_ability)
 end
 ------------------------------------------------------------------------------------------------------------------
@@ -245,19 +245,30 @@ function prev_proc()
     obj.abillist = 'Asb1'
     obj.Name = "技能栏已满。"
 
+    obj = slk.ability['ANcl'] : new 'arpt'
+    obj.Name = "(桥梁目标)"
+    obj.DataB = 1
+    obj.Art = ''
+    obj.hero = 0
+    obj.item = 1
+    obj.levels = 1
+    obj.race = 'other'
+    obj.targs = 'bridge'
     obj =  slk.item['rman'] : new 'rrpt'
-    obj.abillist = 'Asb1'
+    obj.abillist = 'arpt'
     obj.Name = "技能已存在。"
     -------------------------------------------------------------------------------------
     obj = slk.ability['AIam'] : new 'NULL'
     obj.Name = "(无效果)"
     obj.TargetArt = ''
     obj.DataA1 = 0
+    obj.Art = ''
 
     obj =  slk.ability['AIam'] : new 'arfx'
     obj.Name = "获得符文技能"
     obj.EditorSuffix = "(特效)"
     obj.DataA1 = 0
+    obj.Art = ''
     obj.TargetArt = "Abilities\\Spells\\Items\\StaffOfPurification\\PurificationCaster.mdl"
 
     obj =  slk.item['rman'] : new 'rrfx'
@@ -332,10 +343,35 @@ function exec_proc()
     bshm.Buffart = Ashm.Art
     bshm.race = Ashm.race
     generate_item('Ashm', ashm)
+
+    local tech = slk.upgrade['Rews']
+    local obj = slk.ability['Amgr']:new 'aews'
+    obj.Name = tech.Name
+    obj.race = tech.race
+    obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNWellSpring.blp"
+    obj.ResearchArt = tech.Art
+    obj.Buttonpos = {1,1}
+    obj.EditorSuffix = "(clone)"
+    obj.hero = 1
+    obj.checkDep = 0
+    obj.Tip = tech.Name
+    obj.Ubertip = tech.Ubertip
+
+    generate_item('aews', obj)
+
+    obj = slk.ability['AImz']:new 'awsM'
+    obj.Name = tech.Name
+    obj.race = tech.race
+    obj.EditorSuffix = "(法力加成)"
+    obj.DataA = tech.base1
 end
 ----------------------------------------------------------------------------------------
 function post_proc()
+    local slk = require 'slk'
 
+    local obj = slk.ability['aeat']
+    obj.Cool = 30.0
+    obj.Specialattach = 'hand'
 end
 ----------------------------------------------------------------------------------------
 
