@@ -4,7 +4,7 @@ globals
     constant integer ABILITY_SIMSKILL_SLOT = 'SL00'
     constant integer ABILITY_SHADOWMELD_BONUS = 'asmb'
     constant integer ABILITY_WELLSPRING_MANA = 'awsM'
-    constant integer ABILITY_WELLSPRING_RESTORE = 'aIrm'
+    constant integer ABILITY_WELLSPRING_RESTORE = 'awsR'
 
 
     constant integer ITEM_OUT_OF_SKLIICOUNT = 'rful'
@@ -481,6 +481,17 @@ function TriggerAction_DawnAndDusk takes nothing  returns nothing
     call ForGroup(g_groupShadowmeld, function TriggerAction_ShadowmeldEnum)
 endfunction
 //===========================================================================
+function Filter_ConstructIsTower takes nothing returns boolean
+    local integer typeid = GetUnitTypeId(GetFilterUnit())
+    return (typeid == 'hgtw') or (typeid == 'hatw') or (typeid == 'owtw') or (typeid == 'uzg1') or (typeid == 'uzg2') or (typeid == 'etrp') 
+endfunction
+function TriggerAction_TowerConstructFinish takes nothing returns nothing
+    local unit u = GetTriggerUnit()
+    local integer abilcode = 'Aatp'
+    call UnitAddAbility(u, abilcode)
+    call UnitMakeAbilityPermanent(u, true,  abilcode)
+endfunction
+//===========================================================================
 function InitRuneSystem takes nothing returns nothing
     local trigger trg
     local player p
@@ -502,4 +513,8 @@ function InitRuneSystem takes nothing returns nothing
     call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DAWN)
     call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DUSK)
     call TriggerAddAction(trg, function TriggerAction_DawnAndDusk)
+
+    set trg = CreateTrigger()
+    call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_CONSTRUCT_FINISH, Condition(function Filter_ConstructIsTower))
+    call TriggerAddAction(trg, function TriggerAction_TowerConstructFinish)
 endfunction

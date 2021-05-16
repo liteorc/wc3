@@ -181,10 +181,10 @@ function batch_execute()
         generate_enginskill(db[i].unitid, db[i].abillist)
     end    
     -------------------------------------------------------------------------------------
-    local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANab,ANrf,ANht,ANca,ANso"
+    local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANdb,ANab,ANrf,ANht,ANca,ANso"
     batch_generate(heroAbilList, clone_ability)
 
-    local unitAbilityList = "Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ACfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
+    local unitAbilityList = "Aroc,Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ACfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
     batch_generate(unitAbilityList, clone_ability)
 end
 ------------------------------------------------------------------------------------------------------------------
@@ -364,9 +364,13 @@ function exec_proc()
     obj = slk.ability['AImz']:new 'awsM'
     obj.Name = tech.Name
     obj.race = tech.race
-    obj.EditorSuffix = "(法力加成)"
-    obj.DataA = tech.base1
-
+    obj.EditorSuffix = "(法力值加成)"
+    obj.DataA1 = tech.base1
+    obj = slk.ability['AIrm']:new 'awsR'
+    obj.Name = tech.Name
+    obj.race = tech.race
+    obj.EditorSuffix = "(法力恢复速度加快)"
+    obj.DataA1 = tech.base2
 
     obj = slk.ability['AIar']:new 'Atwr'
     obj.Name = "哨塔结界-攻击力加成"
