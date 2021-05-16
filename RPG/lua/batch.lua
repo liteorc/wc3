@@ -366,6 +366,47 @@ function exec_proc()
     obj.race = tech.race
     obj.EditorSuffix = "(法力加成)"
     obj.DataA = tech.base1
+
+
+    obj = slk.ability['AIar']:new 'Atwr'
+    obj.Name = "哨塔结界-攻击力加成"
+    obj.DataA = 1
+    obj.targs = "friend,structure"
+    obj.race = "other"
+    obj.TargetArt = "Abilities\\Spells\\Orc\\WarDrums\\DrumsCasterHeal.mdl"
+
+    obj = slk.ability['AIae']:new 'Atwe'
+    obj.Name = "哨塔结界-攻速加成"
+    obj.DataA = 0
+    obj.DataB = 1
+    obj.targs = "friend,structure"
+    obj.race = "other"
+    obj.Area = 600
+    obj.TargetArt = ''
+
+    obj = slk.unit['ohwd']:new 'ntow'
+    obj.Name = "哨塔结界"
+    obj.Art = "ReplaceableTextures\\CommandButtons\\BTNOrcBattleStandard.blp"
+    obj.unitSound = "SentryWard"
+    obj.file = "Objects\\InventoryItems\\BattleStandard\\BattleStandard.mdl"
+    obj.abilList  = "Aeth,Avul,Atwr,Atwe"
+    obj.race = "other"
+
+    obj = slk.ability['Ahwd']:new 'Atwd'
+    obj.Name = "哨塔结界"
+    obj.UnitID = 'ntow'
+    obj.UnitSkinID = 'ntow'
+    obj.EditorSuffix = ""
+    obj.Tip = "哨塔结界"
+    obj.Ubertip = "提高范围内所有防御塔<Atwr,DataA1,%>%的攻击速度和<Atwe,DataB1,%>%的攻击力。|n持续<Atwd,Dur1>秒。"
+    obj.Art = "ReplaceableTextures\\CommandButtons\\BTNOrcBattleStandard.blp"
+    obj.Cost = 0
+    obj.Cool = 135
+    obj.Dur = 45
+    obj.HeroDur = 45
+    obj.BuffID = 'BOac'
+    obj.race = "other"
+    obj.checkDep = 0
 end
 ----------------------------------------------------------------------------------------
 function post_proc()

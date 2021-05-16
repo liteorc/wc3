@@ -1,7 +1,7 @@
 //===========================================================================
 globals
-    unit            ACTOR           =   null
-    boolean     TRACE_ON     =   true
+    unit        ACTOR           =   null
+    boolean     TRACE_ON        =   true
 endglobals
 //===========================================================================
 function DEBUGMSG takes string text returns nothing
@@ -11,7 +11,10 @@ function DEBUGMSG takes string text returns nothing
 endfunction
 //===========================================================================
 function Test takes nothing returns nothing
-
+    local integer abilcode ='Atwd'
+    call UnitAddAbility(ACTOR, abilcode)
+    call UnitMakeAbilityPermanent(ACTOR, true, abilcode)
+    call DEBUGMSG(GetUnitName(ACTOR) + "添加技能" + GetObjectName(abilcode))
 endfunction
 //===========================================================================
 function ForEachItemInMap takes nothing returns nothing
