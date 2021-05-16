@@ -125,4 +125,6 @@ function Debug takes nothing returns nothing
     set str = str + "items.codelist        批量创建物品\n"
     set str = str + "items.clear             清空物品\n"
     call DEBUGMSG(str)
+
+    call DEBUGMSG("2021/5/16 2206")
 endfunction
