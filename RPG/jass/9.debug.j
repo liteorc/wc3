@@ -90,9 +90,11 @@ function FilterTown takes nothing returns boolean
 endfunction
 function InitActor takes nothing returns nothing
     local group g = CreateGroup()
-    call GroupEnumUnitsOfPlayer(g, GetLocalPlayer(), Filter(function FilterTown))
+    local filterfunc filter = Filter(function FilterTown)
+    call GroupEnumUnitsOfPlayer(g, GetLocalPlayer(), filter)
     set ACTOR = FirstOfGroup(g)
     call DestroyGroup(g)
+    call DestroyFilter(filter)
 
     call DEBUGMSG("当前指令目标：" + GetUnitName(ACTOR) + I2S(GetHandleId(ACTOR)))
 endfunction

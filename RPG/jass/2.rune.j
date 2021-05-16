@@ -349,6 +349,14 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
     endif
 endfunction
 //===========================================================================
+function GetPlayerHeroCount takes player p returns integer
+    local group g = CreateGroup()
+    local integer count = 0 
+    call GroupEnumUnitsOfPlayer(g, p, filterMeleeTrainedUnitIsHeroBJ)
+    set count = CountUnitsInGroup(g)
+    call DestroyGroup(g)
+    return count
+endfunction
 function UnitSetupSimSystem takes unit u returns nothing
     local integer unitid = GetUnitTypeId(u)
     local integer engineid = UnitId2EnginskillId(unitid)
@@ -356,8 +364,7 @@ function UnitSetupSimSystem takes unit u returns nothing
     local integer i
     local integer bookId
 
-    call SetUnitUserData(u, GetPlayerTechCount(GetOwningPlayer(u), 'HERO', true))
-
+    call SetUnitUserData(u, GetPlayerHeroCount(GetOwningPlayer(u)))
     call UnitAddAbility(u, engineid)
     call UnitRemoveAbility(u, engineid)
     set i = 1
