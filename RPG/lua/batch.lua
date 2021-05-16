@@ -8,8 +8,8 @@ function revise_research_art(path, onoff)
     return path
 end
 ------------------------------------------------------------------------------------------------------------------
-function generate_item(abilcode, abilObj)
-    local func = load(string.format("return (require 'slk').item.%s:new \'%s\'", 'rman', string.gsub(abilcode, 'A', 'R', 1)))
+function generate_item(itemid, abilObj)
+    local func = load(string.format("return (require 'slk').item.%s:new \'%s\'", 'rman', itemid))
     local obj = func()
     
     obj.Name = "符文 - "..abilObj.Name
@@ -45,7 +45,7 @@ function clone_ability(abilcode)
         obj.ResearchArt = revise_research_art(obj.Art, string.len(obj.Unart) > 0)
     end
 
-    generate_item(abilcode, obj)
+    generate_item(string.gsub(abilcode, 'A', 'R', 1), obj)
     return obj
 end
 ------------------------------------------------------------------------------------------------------------------
@@ -342,7 +342,7 @@ function exec_proc()
     bshm.Buffubertip = "提高自身攻击速度和移动速度。"
     bshm.Buffart = Ashm.Art
     bshm.race = Ashm.race
-    generate_item('Ashm', ashm)
+    generate_item('Rshm', ashm)
 
     local tech = slk.upgrade['Rews']
     local obj = slk.ability['Amgr']:new 'aews'
@@ -356,8 +356,10 @@ function exec_proc()
     obj.checkDep = 0
     obj.Tip = tech.Name
     obj.Ubertip = tech.Ubertip
+    obj.UnButtonpos = {1,1}
+    obj.reqLevel = 3
 
-    generate_item('aews', obj)
+    generate_item('Rews', obj)
 
     obj = slk.ability['AImz']:new 'awsM'
     obj.Name = tech.Name

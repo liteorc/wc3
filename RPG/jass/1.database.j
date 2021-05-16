@@ -79,7 +79,7 @@ function InitDatabase takes nothing returns nothing
     //extra hero abilities
     set abillist = abillist+"ashm,aHbz,aHwe,aHfs,aHbn,aHdr,aHtc,aHbh,aHhb,aHds,aOwk,aOcr,aOsf,aOcl,aOhw,aOhx,aOsw,aOsh,aOws,aEmb,aEim,aEev,aEer,aEfn,aHfa,aEbl,aEsh,aUim,aUts,aUdc,aUsl,aUcs,aUfn,aUfu,aNsi,aNba,aNdr,aNsq,aNfl,aNfa,aNms,aNbf,aNab,aNrf,aNht,aNca,aNso,"
     //extra unit abilities
-    set abillist = abillist+"adis,afbk,ahea,ainf,aivs,amls,apxf,aply,aslo,asps,ablo,adev,aens,ahwd,alsh,awar,apg2,asal,aspl,aven,asta,aabs,aam2,aap1,acn2,acri,acrs,advm,arai,arpl,arpm,aweb,aadm,acyc,aeat,aegr,afae,assk,amfl,apsh,arej,aroa,aspo,atau,aNpa,apig,aCbf,aCcb,aCcv,aCdv,aNfb,ache,aCtb,aNfd,afzy,aNdp,aNmo,aren"
+    set abillist = abillist+"aews,adis,afbk,ahea,ainf,aivs,amls,apxf,aply,aslo,asps,ablo,adev,aens,ahwd,alsh,awar,apg2,asal,aspl,aven,asta,aabs,aam2,aap1,acn2,acri,acrs,advm,arai,arpl,arpm,aweb,aadm,acyc,aeat,aegr,afae,assk,amfl,apsh,arej,aroa,aspo,atau,aNpa,apig,aCbf,aCcb,aCcv,aCdv,aNfb,ache,aCtb,aNfd,afzy,aNdp,aNmo,aren"
     set toy = CreateUnit(Player(PLAYER_NEUTRAL_PASSIVE), 'nsno', 0, 0, 0)
     call ShowUnit(toy, false)
     set i = 0

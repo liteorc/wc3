@@ -40,6 +40,17 @@ function TiggerAction_Command takes nothing returns nothing
         endif
     elseif (str == "item.clear") then
         call EnumItemsInRect(bj_mapInitialPlayableArea, null, function ForEachItemInMap)
+    elseif (StringContains(str, "items.")) then
+        set str = SubString(str, 6, StringLength(str))
+        set bj_forLoopAIndex = 0
+        set bj_forLoopAIndexEnd = StringLength(str)
+        loop
+            set id = S2C(SubString(str, bj_forLoopAIndex, bj_forLoopAIndex + 4))
+            call DEBUGMSG(GetObjectName(id))
+            call CreateItem(id, GetUnitX(ACTOR), GetUnitY(ACTOR))
+            set bj_forLoopAIndex = bj_forLoopAIndex + 5
+            exitwhen bj_forLoopAIndex > bj_forLoopAIndexEnd
+        endloop
     elseif (StringContains(str, "item.")) then
         set id = S2C(SubString(str, 5, 9))
         if (not IsItemIdPawnable(id)) then
@@ -74,14 +85,27 @@ function DebugCheats takes nothing returns nothing
     //call Cheat("whosyourdaday")
 endfunction
 //===========================================================================
+function FilterTown takes nothing returns boolean
+    return IsUnitType(GetFilterUnit(), UNIT_TYPE_TOWNHALL)
+endfunction
+function InitActor takes nothing returns nothing
+    local group g = CreateGroup()
+    call GroupEnumUnitsOfPlayer(g, GetLocalPlayer(), Filter(function FilterTown))
+    set ACTOR = FirstOfGroup(g)
+    call DestroyGroup(g)
+
+    call DEBUGMSG("当前指令目标：" + GetUnitName(ACTOR) + I2S(GetHandleId(ACTOR)))
+endfunction
 function Debug takes nothing returns nothing
     local string str
     local trigger trg
     local player p = GetLocalPlayer()
   
-    set trg = CreateTrigger()
-    call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SELECTED, null)
-    call TriggerAddAction(trg, function TriggerAction_SelectUnit)
+    call InitActor()
+    
+    // set trg = CreateTrigger()
+    // call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SELECTED, null)
+    // call TriggerAddAction(trg, function TriggerAction_SelectUnit)
 
     set trg = CreateTrigger()
     call TriggerRegisterPlayerChatEvent(trg, p, "cmd:", false)
@@ -90,9 +114,10 @@ function Debug takes nothing returns nothing
     //call DebugCheats()
 
     set str = "|cffffff00DEBUG模式已开启，请输入cmd+冒号+指令代码(如cmd:cls)进行调试|r\n\n"
-    set str = str + "trace.on/off     启用/禁用调试输出\n"
-    set str = str + "cls              清空聊天信息\n"
-    set str = str + "item.xxxx        创建物品\n"
-    set str = str + "item.clear       清空物品\n"
+    set str = str + "trace.on/off           启用/禁用调试输出\n"
+    set str = str + "cls                          清空聊天信息\n"
+    set str = str + "item.code              创建物品\n"
+    set str = str + "items.codelist        批量创建物品\n"
+    set str = str + "item.clear              清空物品\n"
     call DEBUGMSG(str)
 endfunction

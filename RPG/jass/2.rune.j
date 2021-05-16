@@ -152,19 +152,23 @@ function UpdateShowdowMeldBonus takes unit u returns nothing
     endif
 endfunction
 //===========================================================================
-function PostProc_SelectHeroSimskill takes unit u, integer abilcode, integer abillevel returns nothing
-    if (abillevel > 0) then
+function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level returns nothing
+    if (level > 1) then
+        call SetUnitAbilityLevel(u, abilcode, level + 1)
         if (abilcode == 'ashm') then
             call GroupAddUnit(g_groupShadowmeld, u)
             call UpdateShowdowMeldBonus(u)
         endif
-    else
-        if (abilcode == 'aews') then
-            call UnitAddAbility(u, ABILITY_WELLSPRING_MANA)
-            call UnitAddAbility(u, ABILITY_WELLSPRING_RESTORE)
-            call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_MANA)
-            call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_RESTORE)
-        endif
+        return
+    endif
+    ///Add Ability
+    call UnitAddAbility(u, abilcode)
+    call UnitMakeAbilityPermanent(u, true, abilcode)
+    if (abilcode == 'aews') then
+        call UnitAddAbility(u, ABILITY_WELLSPRING_MANA)
+        call UnitAddAbility(u, ABILITY_WELLSPRING_RESTORE)
+        call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_MANA)
+        call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_RESTORE)
     endif
 endfunction
 function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus returns nothing
@@ -174,17 +178,10 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
     
     set slotnumber = ToSimslotNo(slotcode)
     set abilcode = LoadUnitSimedAbility(u, slotnumber)
-    set abillevel = GetUnitAbilityLevel(u, abilcode)
-    if (abillevel > 0) then
-        call SetUnitAbilityLevel(u, abilcode, abillevel + 1)
-    else
-        call UnitAddAbility(u, abilcode)
-        call UnitMakeAbilityPermanent(u, true, abilcode)
-    endif
-    call PostProc_SelectHeroSimskill(u, abilcode, abillevel)
-
-    set abillevel = GetUnitAbilityLevel(u, slotcode)
-    call SetUnitAbilityLevel(u, slotcode, abillevel + 1)
+    set abillevel = GetUnitAbilityLevel(u, abilcode) + 1
+    call SetUnitSimedAbilityLevel(u, abilcode, abillevel)
+    set abillevel = GetUnitAbilityLevel(u, slotcode) + 1
+    call SetUnitAbilityLevel(u, slotcode, abillevel)
     if updateStatus then
         call UpdateSimslotsStatusEnum(u, slotnumber)
     endif
@@ -292,6 +289,13 @@ function CreateFloatText takes unit u, string s returns nothing
     call TriggerSleepAction(1.5)
     call DestroyTextTag(tag)
 endfunction
+function UnitRemoveSimedAbility takes unit u, integer abilcode returns nothing
+    call UnitRemoveAbility(u, abilcode)
+    if (abilcode == 'aews') then
+        call UnitRemoveAbility(u, ABILITY_WELLSPRING_MANA)
+        call UnitRemoveAbility(u, ABILITY_WELLSPRING_RESTORE)
+    endif
+endfunction
 function TriggerAction_HeroUseItem takes nothing returns nothing
     local unit  u = GetManipulatingUnit()
     local integer itemid =  GetItemTypeId(GetManipulatedItem())
@@ -330,7 +334,7 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
         loop
             set abilcode = LoadUnitSimedAbility(u, i)
             exitwhen abilcode < 1
-            call UnitRemoveAbility(u, abilcode)
+            call UnitRemoveSimedAbility(u, abilcode)
             call SaveUnitSimedAbility(u, i, 0)
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
