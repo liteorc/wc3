@@ -38,7 +38,7 @@ function TiggerAction_Command takes nothing returns nothing
             call DEBUGMSG("调试信息已关闭")
             set TRACE_ON = false
         endif
-    elseif (str == "item.clear") then
+    elseif (str == "items.clear") then
         call EnumItemsInRect(bj_mapInitialPlayableArea, null, function ForEachItemInMap)
     elseif (StringContains(str, "items.")) then
         set str = SubString(str, 6, StringLength(str))
@@ -118,6 +118,6 @@ function Debug takes nothing returns nothing
     set str = str + "cls                          清空聊天信息\n"
     set str = str + "item.code              创建物品\n"
     set str = str + "items.codelist        批量创建物品\n"
-    set str = str + "item.clear              清空物品\n"
+    set str = str + "items.clear             清空物品\n"
     call DEBUGMSG(str)
 endfunction
