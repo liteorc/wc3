@@ -22,9 +22,6 @@ function InitUser takes nothing returns nothing
     call TriggerAddAction(trg, function TriggerAction_TowerConstructFinish)
 endfunction 
 //===========================================================================
-function Filter_DeathIsConstruct takes nothing returns boolean
-    return IsUnitType(GetFilterUnit(), UNIT_TYPE_STRUCTURE)
-endfunction
 function Filter_IsUnitTypeOfGoldMine takes nothing returns boolean
     if( GetUnitTypeId(GetFilterUnit()) == 'ngol') then
         set bj_groupCountUnits = bj_groupCountUnits + 1
@@ -66,7 +63,6 @@ function TriggerAction_AISurrender takes nothing returns nothing
     local group g
     local filterfunc filter 
     local boolean defeated = false
-
     if (GetPlayerTechCount(p, 'HERO', false) > 0) then
         return
     endif
@@ -79,7 +75,6 @@ function TriggerAction_AISurrender takes nothing returns nothing
     call GroupEnumUnitsOfPlayer(g, p, filter)
     call DestroyGroup(g)
     call DestroyFilter(filter)
-    
     if (bj_forLoopAIndex > 0) then//has peon
         set defeated = bj_groupCountUnits < 1 and GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) < 500
     else//no peon
@@ -94,6 +89,9 @@ function TriggerAction_AISurrender takes nothing returns nothing
         call MeleeDoDefeat(p)
     endif
 endfunction
+function TriggerCondition_DeathIsConstruct takes nothing returns boolean
+    return IsUnitType(GetDyingUnit(), UNIT_TYPE_STRUCTURE)
+endfunction
 function InitAI takes nothing returns nothing
     local integer i
     local player  p
@@ -103,9 +101,10 @@ function InitAI takes nothing returns nothing
     loop
         set p = Player(i)
         if ((GetPlayerSlotState(p) == PLAYER_SLOT_STATE_PLAYING) and  (GetPlayerController(p) == MAP_CONTROL_COMPUTER)) then
-                set trg = CreateTrigger()
-                call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_DEATH, Condition(function Filter_DeathIsConstruct))
-                call TriggerAddAction(trg, function TriggerAction_AISurrender)
+            set trg = CreateTrigger()
+            call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_DEATH, null)
+            call TriggerAddCondition(trg, Condition(function TriggerCondition_DeathIsConstruct))
+            call TriggerAddAction(trg, function TriggerAction_AISurrender)
         endif
         set i = i + 1
         exitwhen i == bj_MAX_PLAYERS
