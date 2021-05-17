@@ -454,7 +454,7 @@ function TriggerAction_TinkerLevelUp takes nothing returns nothing
     endif
 endfunction
 //===========================================================================
-function TriggerAction_NeutralHeroSummoned takes nothing returns nothing
+function TriggerAction_SetupSimSystemToHiredHero takes nothing returns nothing
     local unit u  = GetSoldUnit()
     local trigger trg
     if (GetPlayerController(GetOwningPlayer(u)) == MAP_CONTROL_USER) then
@@ -470,7 +470,7 @@ function TriggerAction_NeutralHeroSummoned takes nothing returns nothing
     endif
 endfunction
 //===========================================================================
-function TriggerAction_HeroTrainFinished takes nothing returns nothing
+function TriggerAction_SetupSimSystemToTrainedHero takes nothing returns nothing
     call UnitSetupSimSystem(GetTrainedUnit())
 endfunction
 //===========================================================================
@@ -479,17 +479,6 @@ function TriggerAction_ShadowmeldEnum takes nothing returns nothing
 endfunction
 function TriggerAction_DawnAndDusk takes nothing  returns nothing
     call ForGroup(g_groupShadowmeld, function TriggerAction_ShadowmeldEnum)
-endfunction
-//===========================================================================
-function Filter_ConstructIsTower takes nothing returns boolean
-    local integer typeid = GetUnitTypeId(GetFilterUnit())
-    return (typeid == 'hgtw') or (typeid == 'hatw') or (typeid == 'owtw') or (typeid == 'uzg1') or (typeid == 'uzg2') or (typeid == 'etrp') 
-endfunction
-function TriggerAction_TowerConstructFinish takes nothing returns nothing
-    local unit u = GetTriggerUnit()
-    local integer abilcode = 'Aatp'
-    call UnitAddAbility(u, abilcode)
-    call UnitMakeAbilityPermanent(u, true,  abilcode)
 endfunction
 //===========================================================================
 function InitRuneSystem takes nothing returns nothing
@@ -503,18 +492,14 @@ function InitRuneSystem takes nothing returns nothing
 
     set trg = CreateTrigger()
     call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_TRAIN_FINISH, filterMeleeTrainedUnitIsHeroBJ)
-    call TriggerAddAction(trg, function TriggerAction_HeroTrainFinished)
+    call TriggerAddAction(trg, function TriggerAction_SetupSimSystemToTrainedHero)
 
     set trg = CreateTrigger()
     call TriggerRegisterPlayerUnitEvent(trg, Player(PLAYER_NEUTRAL_PASSIVE), EVENT_PLAYER_UNIT_SELL, filterMeleeTrainedUnitIsHeroBJ)
-    call TriggerAddAction(trg, function TriggerAction_NeutralHeroSummoned)
+    call TriggerAddAction(trg, function TriggerAction_SetupSimSystemToHiredHero)
 
-    set trg = CreateTrigger()
-    call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DAWN)
-    call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DUSK)
-    call TriggerAddAction(trg, function TriggerAction_DawnAndDusk)
-
-    set trg = CreateTrigger()
-    call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_CONSTRUCT_FINISH, Condition(function Filter_ConstructIsTower))
-    call TriggerAddAction(trg, function TriggerAction_TowerConstructFinish)
+    // set trg = CreateTrigger()
+    // call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DAWN)
+    // call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DUSK)
+    // call TriggerAddAction(trg, function TriggerAction_DawnAndDusk)
 endfunction
