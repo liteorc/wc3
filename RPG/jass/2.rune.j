@@ -173,7 +173,7 @@ function TriggerCondition_Simskill takes nothing returns boolean
         return true//aamk
     endif
     set value = value - GetSimslotCode(GetTriggerUnit(), 0)//first slot
-    return value > 0 and value < MAX_SKILLSLOT_COUNT
+    return value > 0 and value <= MAX_SKILLSLOT_COUNT
 endfunction
 function TriggerAction_Simskill takes nothing returns nothing
     local unit u = GetTriggerUnit()
