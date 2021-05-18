@@ -14,6 +14,8 @@ function InitUser takes nothing returns nothing
     local trigger trg
     local player p = GetLocalPlayer()
 
+    call SetPlayerAbilityAvailable(p, 'Ashm', false)
+
     call SetPlayerState(p, PLAYER_STATE_FOOD_CAP_CEILING, 30)
     //call SetPlayerMaxHeroesAllowed(bj_MELEE_HERO_LIMIT + 1, p)
  

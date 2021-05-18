@@ -2,20 +2,15 @@ globals
     constant integer ABILITY_OBSOLETE = 'APai'
     constant integer ABILITY_SIMSKILL_BOOK = 'SB00'
     constant integer ABILITY_SIMSKILL_SLOT = 'SL00'
-    constant integer ABILITY_SHADOWMELD_BONUS = 'asmb'
     constant integer ABILITY_WELLSPRING_MANA = 'awsM'
     constant integer ABILITY_WELLSPRING_RESTORE = 'awsR'
 
-
     constant integer ITEM_OUT_OF_SKLIICOUNT = 'rful'
     constant integer ITEM_REPEAT_SKILL = 'rrpt'
-    constant integer ITEM_CLOAK_OF_SHADOWS = 'clsd'
     constant integer ITEM_RUNE_EFFECT = 'rrfx'
 
     constant integer HERO_ABILITY_LEVEL_SKIP = 2
     constant integer MAX_SKILLSLOT_COUNT = 8
-    ///=======================
-    group g_groupShadowmeld
 endglobals
 //===========================================================================
 function SetUnitAbilityState takes unit u, integer abilcode, boolean disabled, boolean hidden returns nothing 
@@ -134,31 +129,9 @@ function UpdateSimslotsStatus takes unit u returns nothing
     endloop
 endfunction
 //===========================================================================
-function UpdateShowdowMeldBonus takes unit u returns nothing
-    local boolean disabled = true
-    if (GetUnitAbilityLevel(u, 'ashm') > 1) then
-        if (LoadBoolean(g_hashtable, GetHandleId(u), ITEM_CLOAK_OF_SHADOWS)) then
-            set disabled = false
-        else
-            set disabled = GetTimeOfDay() >= bj_TOD_DAWN and GetTimeOfDay() < bj_TOD_DUSK
-        endif
-    endif
-    if disabled then
-        call UnitRemoveAbility(u, ABILITY_SHADOWMELD_BONUS)
-    else
-        call UnitAddAbility(u, ABILITY_SHADOWMELD_BONUS)
-        call SetUnitAbilityState(u, ABILITY_SHADOWMELD_BONUS, false, true)
-        call UnitMakeAbilityPermanent(u, true, ABILITY_SHADOWMELD_BONUS)
-    endif
-endfunction
-//===========================================================================
 function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level returns nothing
     if (level > 1) then
         call SetUnitAbilityLevel(u, abilcode, level + 1)
-        if (abilcode == 'ashm') then
-            call GroupAddUnit(g_groupShadowmeld, u)
-            call UpdateShowdowMeldBonus(u)
-        endif
         return
     endif
     ///Add Ability
@@ -242,14 +215,6 @@ function InitDefaultSimslotList takes unit u returns nothing
             call InitUnitSimslot(u, slot, abilcode)
         endif
         call SaveUnitSimedAbility(u, slot, abilcode)
-
-        if (abilcode == 'ashm') then
-            if (GetUnitAbilityLevel(u, 'Ashm') > 0) then
-                call UnitRemoveAbility(u, 'Ashm')
-                call SelectHeroSimskill(u, GetSimslotCode(u, slot), false)
-            endif
-        endif
-
         set i = i + 5
         set slot = slot + 1
     endloop
@@ -263,28 +228,11 @@ function TriggerAction_HeroLevelup takes nothing returns nothing
     call UpdateSimslotsStatus(u)
 endfunction
 //===========================================================================
-function TriggerCondition_ManipulateShadowCloak takes nothing returns boolean
-    return GetItemTypeId(GetManipulatedItem()) == ITEM_CLOAK_OF_SHADOWS
-endfunction
-function TriggerAction_LoseShadowCloak takes nothing returns nothing
-    local unit u = GetTriggerUnit()
-    call SaveBoolean(g_hashtable, GetHandleId(u), ITEM_CLOAK_OF_SHADOWS, false)
-    if IsUnitInGroup(u, g_groupShadowmeld) then
-        call UpdateShowdowMeldBonus(u)
-    endif
-endfunction
-function TriggerAction_GetShadowCloak takes nothing returns nothing
-    local unit u = GetTriggerUnit()
-    call SaveBoolean(g_hashtable, GetHandleId(u), ITEM_CLOAK_OF_SHADOWS, true)
-    if IsUnitInGroup(u, g_groupShadowmeld) then
-        call UpdateShowdowMeldBonus(u)
-    endif
-endfunction
 function CreateFloatText takes unit u, string s returns nothing
-    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 9, 100, 100, 0, 0)
+    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 9, 0, 100, 100, 0)
     call SetTextTagLifespan(tag, 2)
     call SetTextTagPermanent(tag, false)
-    call SetTextTagVelocityBJ(tag, 200, 90)
+    call SetTextTagVelocityBJ(tag, 168, 90)
     call SetTextTagFadepoint(tag, 0.5)
     call TriggerSleepAction(1.5)
     call DestroyTextTag(tag)
@@ -342,9 +290,9 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
         call InitDefaultSimslotList(u)  
         set i = GetHeroLevel(u) + GetHeroLevel(u) / 3 - GetHeroSkillPoints(u)
         set itemid = GetUnitTypeId(u)
-        if (itemid == 'Emoo' or itemid == 'Ewar' or itemid == 'Ntin') then
-            set i = i + 1
-        endif
+        // if (itemid == 'Ntin') then
+        //     set i = i + 1
+        // endif
         call UnitModifySkillPoints(u, i)
     endif
 endfunction
@@ -395,17 +343,6 @@ function UnitSetupSimSystem takes unit u returns nothing
     set trg = CreateTrigger()
     call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_HERO_LEVEL)
     call TriggerAddAction(trg, function TriggerAction_HeroLevelup)
-
-    set trg = CreateTrigger()
-    call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_DROP_ITEM)
-    call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_PAWN_ITEM)
-    call TriggerAddCondition(trg, Condition(function TriggerCondition_ManipulateShadowCloak))
-    call TriggerAddAction(trg, function TriggerAction_LoseShadowCloak)
-    set trg = CreateTrigger()
-    call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_PICKUP_ITEM)
-    call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_SELL_ITEM)
-    call TriggerAddCondition(trg, Condition(function TriggerCondition_ManipulateShadowCloak))
-    call TriggerAddAction(trg, function TriggerAction_GetShadowCloak)
 
     set trg = CreateTrigger()
     call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_USE_ITEM)
@@ -474,18 +411,9 @@ function TriggerAction_SetupSimSystemToTrainedHero takes nothing returns nothing
     call UnitSetupSimSystem(GetTrainedUnit())
 endfunction
 //===========================================================================
-function TriggerAction_ShadowmeldEnum takes nothing returns nothing
-    call UpdateShowdowMeldBonus(GetEnumUnit())
-endfunction
-function TriggerAction_DawnAndDusk takes nothing  returns nothing
-    call ForGroup(g_groupShadowmeld, function TriggerAction_ShadowmeldEnum)
-endfunction
-//===========================================================================
 function InitRuneSystem takes nothing returns nothing
     local trigger trg
     local player p
-
-    set g_groupShadowmeld = CreateGroup()
 
     set p = GetLocalPlayer()
     call SetPlayerAbilityAvailable(p, ABILITY_OBSOLETE, false)
@@ -497,9 +425,4 @@ function InitRuneSystem takes nothing returns nothing
     set trg = CreateTrigger()
     call TriggerRegisterPlayerUnitEvent(trg, Player(PLAYER_NEUTRAL_PASSIVE), EVENT_PLAYER_UNIT_SELL, filterMeleeTrainedUnitIsHeroBJ)
     call TriggerAddAction(trg, function TriggerAction_SetupSimSystemToHiredHero)
-
-    // set trg = CreateTrigger()
-    // call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DAWN)
-    // call TriggerRegisterGameStateEvent(trg, GAME_STATE_TIME_OF_DAY, EQUAL, bj_TOD_DUSK)
-    // call TriggerAddAction(trg, function TriggerAction_DawnAndDusk)
 endfunction

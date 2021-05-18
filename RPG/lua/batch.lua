@@ -181,11 +181,13 @@ function batch_execute()
         generate_enginskill(db[i].unitid, db[i].abillist)
     end    
     -------------------------------------------------------------------------------------
-    local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANdb,ANab,ANrf,ANht,ANca,ANso"
+    local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtb,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANdb,ANab,ANrf,ANht,ANca,ANso"
     batch_generate(heroAbilList, clone_ability)
 
-    local unitAbilityList = "Aroc,Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ACfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
+    local unitAbilityList = "Auco,Acmg,Amdf,Absk,Adcn,AIpm,Aroc,Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ACfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
     batch_generate(unitAbilityList, clone_ability)
+    --TODO: 需要同步更新database.j
+    -------------------------------------------------------------------------------------
 end
 ------------------------------------------------------------------------------------------------------------------
 function generate_simslot(index)
@@ -307,43 +309,6 @@ function exec_proc()
         o['DataB'..v] = s['DataB'..x]
     end)
     -------------------------------------------------------------------------------------
-    --Shadow Meld
-    local Ashm = slk.ability['Ashm']
-    local asmb = slk.ability['AOae'] : new 'asmb'
-    asmb.Name = Ashm.Name
-    asmb.EditorSuffix = "(buff)"
-    asmb.Art = ''
-    asmb.DataA1 = 0.2--move speed
-    asmb.DataB1 = 0.2--attack speed
-    asmb.targs1 = "self"
-    asmb.Area1 = 0
-    asmb.TargetArt = ''
-    asmb.race = Ashm.race
-    asmb.buffID1 = 'bshm'
-    asmb.levels = 1
-    local ashm = Ashm:new 'ashm'
-    ashm.Name = Ashm.Name
-    ashm.levels = 2
-    ashm.Art = Ashm.Art
-    ashm.ResearchArt = Ashm.Art
-    ashm.Buttonpos = {1,1}
-    ashm.EditorSuffix = "(clone)"
-    ashm.hero = 1
-    ashm.checkDep = 0
-    ashm.DataA2 = Ashm.DataA1
-    ashm.DataB2 = Ashm.DataB1
-    ashm.DataC2 = Ashm.DataC1
-    ashm.Tip1 = Ashm.Tip1
-    ashm.Tip2 = "加强"..Ashm.Tip1
-    ashm.Ubertip1 = Ashm.Ubertip1
-    ashm.Ubertip2 = Ashm.Ubertip1.."|n|cffffcc00夜间提升自身<asmb,DataA1,%>%的攻击速度和移动速度。|r"
-    local bshm = slk.buff['BOae']:new 'bshm'
-    bshm.Bufftip =  ashm.Tip2
-    bshm.Buffubertip = "提高自身攻击速度和移动速度。"
-    bshm.Buffart = Ashm.Art
-    bshm.race = Ashm.race
-    generate_item('Rshm', ashm)
-
     local tech = slk.upgrade['Rews']
     local obj = slk.ability['Amgr']:new 'aews'
     obj.Name = tech.Name
