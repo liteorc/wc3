@@ -85,26 +85,43 @@ function generate_enginskill(unitid, abillist)
     --obj.permanent()
 end
 ------------------------------------------------------------------------------------------------------------------
-function init_simamk(simobj, levels)
+function init_simamk(slotid, levels)
     local slk = require 'slk'
-    local obj = slk.ability['Aamk']:new 'aamk'
-    obj.levels = levels
-    obj.EditorSuffix = "(clone)"
-    simobj.levels = levels
-    simobj.Art = obj.ResearchArt
+
+    local book = generate_simskillbook('SB00', '')
+    book.Buttonpos = {0,1}
+
+    local aamk = slk.ability['Aamk']:new 'aamk'
+
+    local slot = slk.ability['Absk']:new 'SL00'
+    slot.Name = "模拟学习属性加成"
+    slot.checkDep = 0
+    slot.DataA = 0
+    slot.DataB = 0
+    slot.DataC = 0
+    slot.Cool = 0
+    slot.BuffID = ""
+    slot.Art = ""
+    slot.Hotkey = 'Z'
+    slot.race = book.race
+    slot.EditorSuffix = book.EditorSuffix
+    aamk.levels = levels
+    aamk.EditorSuffix = "(clone)"
+    slot.levels = levels
+    slot.Art = aamk.ResearchArt
     for i = 1, levels do
-        obj['DataA'..i] = i * 3
-        obj['DataB'..i] = i * 3
-        obj['DataC'..i] = i * 3
-        obj['DataD'..i] = 1
-        simobj['Dur'..i] = 0.001
-        simobj['HeroDur'..i] = 0.001
+        aamk['DataA'..i] = i * 3
+        aamk['DataB'..i] = i * 3
+        aamk['DataC'..i] = i * 3
+        aamk['DataD'..i] = 1
+        slot['Dur'..i] = 0.001
+        slot['HeroDur'..i] = 0.001
         str = string.format("敏捷、智力、力量各增加<aamk,DataA%d>点属性点",i)
-        simobj['Ubertip'..i]  = str
-        obj['Ubertip'..i]  = str
+        slot['Ubertip'..i]  = str
+        aamk['Ubertip'..i]  = str
         str = string.format("属性加成 - [|cffffcc00%d级|r]",i)
-        simobj['Tip'..i] = "学习"..str
-        obj['Tip'..i] = str
+        slot['Tip'..i] = "学习"..str
+        aamk['Tip'..i] = str
     end
 end
 
@@ -191,12 +208,20 @@ function batch_execute()
 end
 ------------------------------------------------------------------------------------------------------------------
 function generate_simslot(index)
-    local hotkeys = { 'Q', 'W', 'E', 'R', 'A', 'D', 'F', 'T' }
+    local book = generate_simskillbook('SB'..index..'0', '')
+    book.Name = "学习技能"
+    book.Tip = "学习技能"
+    book.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
+    book.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
+    book.Hotkey = "O"
+    book.Buttonpos = {0,1}
+
+    local hotkeys = { 'Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F' }
     local str = ""
     for i = 1, 8 do
         local slotid = 'SL'..index..i
         book = generate_simskillbook('SB'..index..i, str..slotid)
-        book.EditorSuffix = "- hero"..index
+        book.EditorSuffix = string.format("(HERO%d)", i)
         str = str.."APai,"
 
         local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", 'Absk', slotid))
@@ -213,15 +238,12 @@ function generate_simslot(index)
         obj.Art = ""
         obj.Hotkey = hotkeys[i]
         obj.race = book.race
-        obj.EditorSuffix = "- hero"..index
+        obj.EditorSuffix = book.EditorSuffix
         for i = 1, levels do
             obj['Dur'..i] = 0.001
             obj['HeroDur'..i] = 0.001
             obj['Tip'..i] = tostring(i)
             obj['Ubertip'..i] = tostring(i)
-        end
-        if (i == 5) then
-            init_simamk(obj, 15)
         end
         --obj.permanent()
     end
@@ -229,19 +251,11 @@ end
 ------------------------------------------------------------------------------------------------------------------
 function prev_proc()
     local slk = require 'slk'
-
-    local book = generate_simskillbook('SB00', '')
-    book.Name = "学习技能"
-    book.Tip = "学习技能"
-    book.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
-    book.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
-    book.Hotkey = "O"
-    book.Buttonpos = {0,1}
-    --book.permanent()
-    -------------------------------------------------------------------------------------
-    for i = 1,3 do
+    local heroCount = 3
+    for i = 1,heroCount do
         generate_simslot(i)
     end    
+
     -------------------------------------------------------------------------------------
     local obj = slk.item['rman'] : new 'rful'
     obj.abillist = 'Asb1'
