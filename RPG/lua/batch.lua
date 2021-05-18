@@ -33,8 +33,8 @@ function clone_ability(abilcode)
     local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", abilcode, string.gsub(abilcode, 'A', 'a', 1)))
     local obj = func()
 
-    obj.UnButtonpos = {1,1}
-    obj.Buttonpos = {1,1}
+    obj.UnButtonpos = {0,1}
+    obj.Buttonpos = {0,1}
     obj.EditorSuffix = "(clone)"
     obj.hero = 1
     obj.checkDep = 0
@@ -85,53 +85,13 @@ function generate_enginskill(unitid, abillist)
     --obj.permanent()
 end
 ------------------------------------------------------------------------------------------------------------------
-function init_simamk(slotid, levels)
-    local slk = require 'slk'
-
-    local book = generate_simskillbook('SB00', '')
-    book.Buttonpos = {0,1}
-
-    local aamk = slk.ability['Aamk']:new 'aamk'
-
-    local slot = slk.ability['Absk']:new 'SL00'
-    slot.Name = "模拟学习属性加成"
-    slot.checkDep = 0
-    slot.DataA = 0
-    slot.DataB = 0
-    slot.DataC = 0
-    slot.Cool = 0
-    slot.BuffID = ""
-    slot.Art = ""
-    slot.Hotkey = 'Z'
-    slot.race = book.race
-    slot.EditorSuffix = book.EditorSuffix
-    aamk.levels = levels
-    aamk.EditorSuffix = "(clone)"
-    slot.levels = levels
-    slot.Art = aamk.ResearchArt
-    for i = 1, levels do
-        aamk['DataA'..i] = i * 3
-        aamk['DataB'..i] = i * 3
-        aamk['DataC'..i] = i * 3
-        aamk['DataD'..i] = 1
-        slot['Dur'..i] = 0.001
-        slot['HeroDur'..i] = 0.001
-        str = string.format("敏捷、智力、力量各增加<aamk,DataA%d>点属性点",i)
-        slot['Ubertip'..i]  = str
-        aamk['Ubertip'..i]  = str
-        str = string.format("属性加成 - [|cffffcc00%d级|r]",i)
-        slot['Tip'..i] = "学习"..str
-        aamk['Tip'..i] = str
-    end
-end
-
 function generate_simskillbook(bookid, abillist)
     local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", 'Aspb', bookid))
     local book = func()
     book.DataA = abillist
     book.DataB = 0
-    book.DataC = 8
-    book.DataD = 8
+    book.DataC = 9
+    book.DataD = 9
     book.DataE = "simskill"
     book.item = 0
     book.Buttonpos = {0,-11}
@@ -198,7 +158,7 @@ function batch_execute()
         generate_enginskill(db[i].unitid, db[i].abillist)
     end    
     -------------------------------------------------------------------------------------
-    local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtb,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANdb,ANab,ANrf,ANht,ANca,ANso"
+    local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtb,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANdb,ANhs,ANab,ANrf,ANht,ANca,ANso"
     batch_generate(heroAbilList, clone_ability)
 
     local unitAbilityList = "Auco,Acmg,Amdf,Absk,Adcn,AIpm,Aroc,Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ACfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
@@ -208,20 +168,20 @@ function batch_execute()
 end
 ------------------------------------------------------------------------------------------------------------------
 function generate_simslot(index)
-    local book = generate_simskillbook('SB'..index..'0', '')
-    book.Name = "学习技能"
-    book.Tip = "学习技能"
-    book.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
-    book.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
-    book.Hotkey = "O"
-    book.Buttonpos = {0,1}
-
+    local sb = generate_simskillbook('SB'..index..'0', '')
+    sb.Name = "学习技能"
+    sb.Tip = "学习技能"
+    sb.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
+    sb.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
+    sb.Hotkey = "O"
+    sb.Buttonpos = {0,0}
+    sb.EditorSuffix = string.format("(hero %d)", index)
     local hotkeys = { 'Q', 'W', 'E', 'R', 'A', 'S', 'D', 'F' }
     local str = ""
     for i = 1, 8 do
         local slotid = 'SL'..index..i
         book = generate_simskillbook('SB'..index..i, str..slotid)
-        book.EditorSuffix = string.format("(HERO%d)", i)
+        book.EditorSuffix = sb.EditorSuffix
         str = str.."APai,"
 
         local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", 'Absk', slotid))
@@ -238,7 +198,7 @@ function generate_simslot(index)
         obj.Art = ""
         obj.Hotkey = hotkeys[i]
         obj.race = book.race
-        obj.EditorSuffix = book.EditorSuffix
+        obj.EditorSuffix = sb.EditorSuffix
         for i = 1, levels do
             obj['Dur'..i] = 0.001
             obj['HeroDur'..i] = 0.001
@@ -248,6 +208,45 @@ function generate_simslot(index)
         --obj.permanent()
     end
 end
+function generate_attibutemodskill(levels)
+    local slk = require 'slk'
+    local aamk = slk.ability['Aamk']:new 'aamk'
+    aamk.levels = levels
+    aamk.EditorSuffix = "(clone)"
+
+    local book = generate_simskillbook('SB00', 'APai,APai,APai,APai,APai,APai,APai,APai,SL00')
+    book.Name = "属性加成"
+    book.EditorSuffix = "(public)"
+
+    local slot = slk.ability['Absk']:new 'SL00'
+    slot.Name = "属性加成"
+    slot.EditorSuffix = "(public)"
+    slot.checkDep = 0
+    slot.DataA = 0
+    slot.DataB = 0
+    slot.DataC = 0
+    slot.Cool = 0
+    slot.BuffID = ''
+    slot.Hotkey = 'Z'
+    slot.Art = aamk.ResearchArt
+    slot.race = book.race
+    slot.levels = levels
+
+    for i = 1, levels do
+        aamk['DataA'..i] = i * 3
+        aamk['DataB'..i] = i * 3
+        aamk['DataC'..i] = i * 3
+        aamk['DataD'..i] = 1
+        slot['Dur'..i] = 0.001
+        slot['HeroDur'..i] = 0.001
+        str = string.format("敏捷、智力、力量各增加<aamk,DataA%d>点属性点",i)
+        slot['Ubertip'..i]  = str
+        aamk['Ubertip'..i]  = str
+        str = string.format("属性加成 - [|cffffcc00%d级|r]",i)
+        slot['Tip'..i] = "学习"..str
+        aamk['Tip'..i] = str
+    end
+end
 ------------------------------------------------------------------------------------------------------------------
 function prev_proc()
     local slk = require 'slk'
@@ -255,6 +254,7 @@ function prev_proc()
     for i = 1,heroCount do
         generate_simslot(i)
     end    
+    generate_attibutemodskill(15)
 
     -------------------------------------------------------------------------------------
     local obj = slk.item['rman'] : new 'rful'
@@ -390,6 +390,7 @@ function exec_proc()
     obj.BuffID = 'BOac'
     obj.race = "other"
     obj.checkDep = 0
+    obj.EditorSuffix = "(defend)"
 end
 ----------------------------------------------------------------------------------------
 function post_proc()

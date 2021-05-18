@@ -1,6 +1,6 @@
 [CmdMove]
 Art=CommandMove
-Buttonpos=0,0
+Buttonpos=0,-11
 
 [CmdAttack]
 Art=CommandAttack

@@ -1,7 +1,7 @@
 globals
     constant integer ABILITY_OBSOLETE = 'APai'
-    constant integer ABILITY_SIMSKILL_BOOK = 'SB00'
-    constant integer ABILITY_SIMSKILL_SLOT = 'SL00'
+    constant integer ABILITY_SIMSKILL_BOOKA = 'SB00'
+    constant integer ABILITY_SIMSKILL_SLOTA = 'SL00'
     constant integer ABILITY_WELLSPRING_MANA = 'awsM'
     constant integer ABILITY_WELLSPRING_RESTORE = 'awsR'
 
@@ -58,6 +58,9 @@ function UnitId2EnginskillId takes integer unitid returns integer
     return ModuloInteger(unitid, 0x1000000) + 'e' * 0x1000000
 endfunction
 function LoadUnitSimedAbility takes unit u, integer slotNo returns integer
+    if slotNo == 0 then
+        return 'aamk'
+    endif
     return LoadInteger(g_hashtable, GetHandleId(u), 0xab1 + slotNo)
 endfunction
 function SaveUnitSimedAbility takes unit u, integer slotNo, integer abilcode returns nothing
@@ -65,14 +68,17 @@ function SaveUnitSimedAbility takes unit u, integer slotNo, integer abilcode ret
 endfunction
 function GetSimslotCode takes unit u, integer slotNo returns integer
     local integer index = GetUnitUserData(u)
-    return ABILITY_SIMSKILL_SLOT + index * 0x100 + slotNo
+    return ABILITY_SIMSKILL_SLOTA + index * 0x100 + slotNo
 endfunction
 function ToSimslotNo takes integer slotcode returns integer
+    if (slotcode == ABILITY_SIMSKILL_SLOTA) then
+        return 0
+    endif
     return ModuloInteger(slotcode, 0x100) - '0'
 endfunction
 function GetSimskillBookId takes unit u, integer slotNo returns integer
     local integer index = GetUnitUserData(u)
-    return ABILITY_SIMSKILL_BOOK + index * 0x100 + slotNo
+    return ABILITY_SIMSKILL_BOOKA + index * 0x100 + slotNo
 endfunction
 //===========================================================================
 function UpdateSimslotsStatusEnum takes unit u, integer slotNo returns nothing
@@ -85,13 +91,14 @@ function UpdateSimslotsStatusEnum takes unit u, integer slotNo returns nothing
     local boolean disable = false
     local ability simsobj
     
+    if (slotNo < 1) then//attributemodskill
+        call SetUnitAbilityState(u, ABILITY_SIMSKILL_SLOTA, GetHeroSkillPoints(u) < 1, false)
+        return
+    endif
     set simslot = GetSimslotCode(u, slotNo)
     set abilcode = LoadUnitSimedAbility(u, slotNo)
     if (abilcode < 1) then
         call SetUnitAbilityState(u, simslot, false, true)
-        return
-    elseif (abilcode == 'aamk') then
-        call SetUnitAbilityState(u, simslot, GetHeroSkillPoints(u) < 1, false)
         return
     endif
     set abilLevel = GetUnitAbilityLevel(u, abilcode)
@@ -121,7 +128,7 @@ function UpdateSimslotsStatusEnum takes unit u, integer slotNo returns nothing
     call SetUnitAbilityState(u, simslot, disable, false)
 endfunction
 function UpdateSimslotsStatus takes unit u returns nothing
-    local integer i = 1
+    local integer i = 0
     loop
         call UpdateSimslotsStatusEnum(u,  i)
         set i = i + 1
@@ -161,17 +168,23 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
 endfunction
 //===========================================================================
 function TriggerCondition_Simskill takes nothing returns boolean
-    local integer value = GetSpellAbilityId() - GetSimslotCode(GetTriggerUnit(), 1)//first slot
-    return value > -1 and value < MAX_SKILLSLOT_COUNT
+    local integer value = GetSpellAbilityId()
+    if (value == ABILITY_SIMSKILL_SLOTA) then
+        return true//aamk
+    endif
+    set value = value - GetSimslotCode(GetTriggerUnit(), 0)//first slot
+    return value > 0 and value < MAX_SKILLSLOT_COUNT
 endfunction
 function TriggerAction_Simskill takes nothing returns nothing
     local unit u = GetTriggerUnit()
+    local integer book
     call SelectHeroSimskill(u, GetSpellAbilityId(), false)
     call UnitModifySkillPoints(u, -1)
     if (GetHeroSkillPoints(u) < 1) then
-        call UnitRemoveAbility(u, ABILITY_SIMSKILL_BOOK)
-        call UnitAddAbility(u, ABILITY_SIMSKILL_BOOK)      
-        call UnitMakeAbilityPermanent(u, true, ABILITY_SIMSKILL_BOOK)
+        set book = GetSimskillBookId(u, 0)
+        call UnitRemoveAbility(u, book)
+        call UnitAddAbility(u, book)      
+        call UnitMakeAbilityPermanent(u, true, book)
     endif
     call UpdateSimslotsStatus(u)
 endfunction
@@ -211,13 +224,15 @@ function InitDefaultSimslotList takes unit u returns nothing
         exitwhen i > len
         set str = SubString(skillList, i, i + 4)
         set abilcode = S2C(str)
-        if (abilcode != 'aamk') then//attributemodskill
-            call InitUnitSimslot(u, slot, abilcode)
-        endif
+        call InitUnitSimslot(u, slot, abilcode)
         call SaveUnitSimedAbility(u, slot, abilcode)
         set i = i + 5
         set slot = slot + 1
     endloop
+
+    call UnitAddAbility(u, ABILITY_SIMSKILL_BOOKA)
+    call UnitMakeAbilityPermanent(u, true, ABILITY_SIMSKILL_BOOKA)
+    call UnitMakeAbilityPermanent(u, true, ABILITY_SIMSKILL_SLOTA)
 endfunction
 //===========================================================================
 function TriggerAction_HeroLevelup takes nothing returns nothing
@@ -277,7 +292,7 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
-    elseif (itemid == 'retr') then
+    elseif (itemid == 'retr') then//TODO: TEST
         set i = 1
         loop
             set abilcode = LoadUnitSimedAbility(u, i)
@@ -287,6 +302,7 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
+        call UnitRemoveAbility(u,'aamk')
         call InitDefaultSimslotList(u)  
         set i = GetHeroLevel(u) + GetHeroLevel(u) / 3 - GetHeroSkillPoints(u)
         set itemid = GetUnitTypeId(u)
@@ -313,9 +329,12 @@ function UnitSetupSimSystem takes unit u returns nothing
     local integer bookId
 
     call SetUnitUserData(u, GetPlayerHeroCount(GetOwningPlayer(u)))
+    //clear default abils
     call UnitAddAbility(u, engineid)
     call UnitRemoveAbility(u, engineid)
-    set i = 1
+
+    //init book
+    set i = 0
     loop
         set bookId = GetSimskillBookId(u, i)
         call UnitAddAbility(u, bookId)
@@ -323,15 +342,15 @@ function UnitSetupSimSystem takes unit u returns nothing
         set i = i + 1
         exitwhen i > MAX_SKILLSLOT_COUNT
     endloop
+    //set slot permanent
     set i = 1
     loop
         call UnitMakeAbilityPermanent(u, true, GetSimslotCode(u, i))
         set i = i + 1
         exitwhen i > MAX_SKILLSLOT_COUNT
     endloop
-    call UnitAddAbility(u, ABILITY_SIMSKILL_BOOK)
-
     call InitDefaultSimslotList(u)
+
     call UpdateSimslotsStatus(u)
     //===============================================
 
@@ -386,7 +405,7 @@ endfunction
 function TriggerAction_TinkerLevelUp takes nothing returns nothing
     local unit u = GetLevelingUnit()
     if (GetHeroLevel(u) >= LoadAbilityRequireLevel('aNde')) then
-        call SelectHeroSimskill(u, GetSimslotCode(u, 6), true)//Demolish:6
+        call SelectHeroSimskill(u, GetSimslotCode(u, 5), true)//Demolish:5
         call DestroyTrigger(GetTriggeringTrigger())
     endif
 endfunction
