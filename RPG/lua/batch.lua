@@ -396,7 +396,31 @@ function post_proc()
 
     local obj = slk.ability['aeat']
     obj.Cool = 30.0
-    obj.Specialattach = 'hand'
+    
+    -----------------------------------------------------
+    local buf = slk.buff['BUts']:new 'bUts'
+    buf.TargetArt = "Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestMountRight.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestMountLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestRight.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestRight.mdl"
+    buf.Targetattachcount = 6
+    buf.Targetattach = 'chest'
+    buf.Targetattach1 = 'chest'
+    buf.Targetattach2 = 'foot,left'
+    buf.Targetattach3 = 'foot,right'
+    buf.Targetattach4 = 'hand,left'
+    buf.Targetattach5 = 'hand,right'
+    obj = slk.ability['aUts']
+    obj.BuffID1 = 'bUts'
+    obj.BuffID2 = 'bUts'
+    obj.BuffID3 = 'bUts'
+    -----------------------------------------------------
+    buf = slk.buff['Bbsk']:new 'bbsk'
+    buf.TargetArt = "Abilities\\Spells\\Orc\\TrollBerserk\\HeadhunterWEAPONSLeft.mdl,Abilities\\Spells\\Orc\\TrollBerserk\\HeadhunterWEAPONSRight.mdl,Abilities\\Spells\\Orc\\TrollBerserk\\HeadhunterWEAPONSLeft.mdl,Abilities\\Spells\\Orc\\TrollBerserk\\HeadhunterWEAPONSRight.mdl"
+    buf.Targetattachcount = 4
+    buf.Targetattach = 'foot,left'
+    buf.Targetattach1 = 'foot,right'
+    buf.Targetattach2 = 'hand,left'
+    buf.Targetattach3 = 'hand,right'
+    obj = slk.ability['absk']
+    obj.BuffID = 'bbsk'
 end
 ----------------------------------------------------------------------------------------
 
