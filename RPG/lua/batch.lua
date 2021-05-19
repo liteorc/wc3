@@ -327,13 +327,12 @@ function exec_proc()
     obj.race = tech.race
     obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNWellSpring.blp"
     obj.ResearchArt = tech.Art
-    obj.Buttonpos = {1,1}
+    obj.Buttonpos = {0,1}
     obj.EditorSuffix = "(clone)"
     obj.hero = 1
     obj.checkDep = 0
     obj.Tip = tech.Name
     obj.Ubertip = tech.Ubertip
-    obj.UnButtonpos = {1,1}
     obj.reqLevel = 3
 
     generate_item('Rews', obj)
