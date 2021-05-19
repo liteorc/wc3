@@ -1,4 +1,6 @@
 ------------------------------------------------------------------------------------------------------------------
+local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,Auco,AIpm,Apig,Aspo,Acn2,Aven,Aeat,ANba,AHfa,ANfa,AEim,Aadm,Aivs,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ANpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,AHds,ANdp"
+------------------------------------------------------------------------------------------------------------------
 function revise_research_art(path, onoff)
     if onoff then
         return string.gsub(path, "On.blp", ".blp", 1)
@@ -158,11 +160,7 @@ function batch_execute()
         generate_enginskill(db[i].unitid, db[i].abillist)
     end    
     -------------------------------------------------------------------------------------
-    local heroAbilList = "AHbz,AHwe,AHfs,AHbn,AHdr,AHtb,AHtc,AHbh,AHhb,AHds,AOwk,AOcr,AOsf,AOcl,AOhw,AOhx,AOsw,AOsh,AOws,AEmb,AEim,AEev,AEer,AEfn,AHfa,AEbl,AEsh,AUim,AUts,AUdc,AUsl,AUcs,AUfn,AUfu,ANsi,ANba,ANdr,ANsq,ANfl,ANfa,ANms,ANbf,ANdb,ANhs,ANab,ANrf,ANht,ANca,ANso"
-    batch_generate(heroAbilList, clone_ability)
-
-    local unitAbilityList = "Auco,Acmg,Amdf,Absk,Adcn,AIpm,Aroc,Adis,Afbk,Ahea,Ainf,Aivs,Amls,Apxf,Aply,Aslo,Asps,Ablo,Aens,Ahwd,Alsh,Awar,Apg2,Asal,Aspl,Aven,Asta,Aabs,Aam2,Aap1,Acn2,Acri,Acrs,Advm,Arai,Arpl,Arpm,Aweb,Aadm,Acyc,Aeat,Aegr,Afae,Assk,Amfl,Apsh,Arej,Aroa,Aspo,Atau,ANpa,Apig,ACbf,ACcb,ACcv,ACdv,ACfb,Ache,ACtb,ANfd,Afzy,ANdp,ANmo"
-    batch_generate(unitAbilityList, clone_ability)
+    batch_generate(ABILITYLIST, clone_ability)
     --TODO: 需要同步更新database.j
     -------------------------------------------------------------------------------------
 end
