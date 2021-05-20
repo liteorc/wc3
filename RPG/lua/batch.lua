@@ -1,5 +1,7 @@
 ------------------------------------------------------------------------------------------------------------------
 local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,Auco,AIpm,Apig,Aspo,Acn2,Aven,Aeat,ANba,AHfa,ANfa,AEim,Aadm,Aivs,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ANpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,AHds,ANdp"
+local BUTTONPOS = {0,1}
+local REQLEVEL = 3
 ------------------------------------------------------------------------------------------------------------------
 function revise_research_art(path, onoff)
     if onoff then
@@ -35,12 +37,12 @@ function clone_ability(abilcode)
     local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", abilcode, string.gsub(abilcode, 'A', 'a', 1)))
     local obj = func()
 
-    obj.UnButtonpos = {0,1}
-    obj.Buttonpos = {0,1}
+    obj.Buttonpos = BUTTONPOS
+    obj.UnButtonpos = BUTTONPOS
     obj.EditorSuffix = "(clone)"
     obj.hero = 1
     obj.checkDep = 0
-    obj.reqLevel = 3
+    obj.reqLevel = REQLEVEL
     if (string.match(obj.Art, "Immolation")) then
         obj.ResearchArt = "ReplaceableTextures\\CommandButtons\\BTNImmolationOn.blp"
     else
@@ -321,22 +323,79 @@ function exec_proc()
         o['DataB'..v] = s['DataB'..x]
     end)
     -------------------------------------------------------------------------------------
+    --Ethereal
+    local Aetf = slk.ability['Aetf']
+    obj = slk.ability['ANcl']:new 'aetf'
+    obj.Effectsound = Aetf.Effectsound
+    obj.DataE = 0
+    obj.DataD = 0.7
+    obj.DataF = 'etherealform'
+    obj.Order = 'etherealform'
+    obj.DataA= 0.7
+    obj.DataC= 5
+    obj.Name = Aetf.Name
+    obj.Tip = Aetf.Name
+    obj.UberTip = Aetf.UberTip
+    obj.Hotkey = Aetf.Hotkey
+    obj.Rng = 0
+    obj.race = Aetf.race
+    obj.levels = 1
+    obj.reqLevel = REQLEVEL
+    obj.Art = Aetf.Art
+    obj.ResearchArt = Aetf.Art
+    obj.ButtonPos = BUTTONPOS
+    obj.Animnames = 'channel'
+    obj.CasterArt = Aetf.CasterArt
+    obj.Casterattach = 'chest'
+    obj.TargetArt = ''
+    obj.EffectArt = ''
+    obj.Targetattach = ''
+    obj.EditorSuffix = "(clone)"
+    generate_item('Retf', obj)
+
+    local Acpf = slk.ability['Acpf']
+    obj = slk.ability['ANcl']:new 'acpf'
+    obj.Effectsound = Acpf.Effectsound
+    obj.DataE = 0
+    obj.DataD = 0.7
+    obj.DataF = 'corporealform'
+    obj.Order = 'corporealform'
+    obj.DataA= 0.7
+    obj.DataC= 9
+    obj.Name = Acpf.Name
+    obj.Tip = Acpf.Name
+    obj.UberTip = Acpf.UberTip
+    obj.Hotkey = Acpf.Hotkey
+    obj.Rng = 0
+    obj.race = Acpf.race
+    obj.levels = 1
+    obj.reqLevel = REQLEVEL
+    obj.Art = Acpf.Art
+    obj.ResearchArt = Acpf.Art
+    obj.ButtonPos = BUTTONPOS
+    obj.Animnames = 'channel'
+    obj.CasterArt = Acpf.CasterArt
+    obj.Casterattach = 'chest'
+    obj.TargetArt = ''
+    obj.EffectArt = ''
+    obj.Targetattach = ''
+    obj.EditorSuffix = "(clone)"
+    -------------------------------------------------------------------------------------
+    --Well Spring
     local tech = slk.upgrade['Rews']
-    local obj = slk.ability['Amgr']:new 'aews'
+    obj = slk.ability['Amgr']:new 'aews'
     obj.Name = tech.Name
     obj.race = tech.race
     obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNWellSpring.blp"
     obj.ResearchArt = tech.Art
-    obj.Buttonpos = {0,1}
+    obj.Buttonpos = BUTTONPOS
     obj.EditorSuffix = "(clone)"
     obj.hero = 1
     obj.checkDep = 0
     obj.Tip = tech.Name
     obj.Ubertip = tech.Ubertip
-    obj.reqLevel = 3
-
+    obj.reqLevel = REQLEVEL
     generate_item('Rews', obj)
-
     obj = slk.ability['AImz']:new 'awsM'
     obj.Name = tech.Name
     obj.race = tech.race
@@ -347,7 +406,7 @@ function exec_proc()
     obj.race = tech.race
     obj.EditorSuffix = "(法力恢复速度加快)"
     obj.DataA1 = tech.base2
-
+    -------------------------------------------------------------------------------------
     obj = slk.ability['AIar']:new 'Atwr'
     obj.Name = "哨塔结界-攻击力加成"
     obj.DataA = 1
@@ -388,6 +447,7 @@ function exec_proc()
     obj.race = "other"
     obj.checkDep = 0
     obj.EditorSuffix = "(defend)"
+    -------------------------------------------------------------------------------------
 end
 ----------------------------------------------------------------------------------------
 function post_proc()

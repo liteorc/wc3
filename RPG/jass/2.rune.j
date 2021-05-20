@@ -48,6 +48,14 @@ function IsIdenticalAbility takes integer code1, integer code2 returns boolean
     endif
     return false
 endfunction
+//===========================================================================
+function UnitAddPowerupItem takes unit u, integer itemid returns item
+    local item whichItem = CreateItem(itemid, 0, 0)
+    call SetItemVisible(whichItem, false)
+    call UnitAddItem(u, whichItem)
+    return whichItem
+endfunction
+//===========================================================================
 function RuneId2AbilityId takes integer runeid returns integer
     return runeid - 'R000' + 'a000'
 endfunction
@@ -151,6 +159,36 @@ function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level 
         call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_RESTORE)
     endif
 endfunction
+function TriggerAction_Ethereal takes nothing returns nothing
+    local unit u = GetTriggerUnit()
+    local integer abilcode = GetSpellAbilityId()
+    if (abilcode == 'aetf' ) then
+        call UnitRemoveAbility(u, abilcode)
+        set abilcode = 'acpf'
+        call UnitAddAbility(u, abilcode)
+        call UnitMakeAbilityPermanent(u, true, abilcode)
+        call BlzStartUnitAbilityCooldown(u, abilcode, 29.3)
+        set abilcode = 'Aetl'
+        call UnitAddAbility(u, abilcode)
+        call BlzUnitHideAbility(u, abilcode, true)
+        call UnitMakeAbilityPermanent(u, true, abilcode)
+    elseif (abilcode == 'acpf' ) then
+        call UnitRemoveAbility(u, 'Aetl')
+        call UnitRemoveAbility(u, abilcode)
+        set abilcode = 'aetf'
+        call UnitAddAbility(u, abilcode)
+        call UnitMakeAbilityPermanent(u, true, abilcode)
+    endif
+
+endfunction
+function TiggerAction_SelectSimskill takes unit u, integer abilcode returns nothing
+    local trigger trg
+    if(abilcode == 'aetf') then
+        set trg = CreateTrigger()
+        call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_SPELL_ENDCAST)
+        call TriggerAddAction(trg, function TriggerAction_Ethereal)
+    endif
+endfunction
 function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus returns nothing
     local integer abilcode
     local integer abillevel
@@ -165,6 +203,8 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
     if updateStatus then
         call UpdateSimslotsStatusEnum(u, slotnumber)
     endif
+    //post-process
+    call TiggerAction_SelectSimskill(u, abilcode)
 endfunction
 //===========================================================================
 function TriggerCondition_Simskill takes nothing returns boolean
@@ -244,7 +284,7 @@ function TriggerAction_HeroLevelup takes nothing returns nothing
 endfunction
 //===========================================================================
 function CreateFloatText takes unit u, string s returns nothing
-    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 9, 0, 100, 100, 0)
+    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 10, 100, 100, 0, 0)
     call SetTextTagLifespan(tag, 2)
     call SetTextTagPermanent(tag, false)
     call SetTextTagVelocityBJ(tag, 168, 90)
@@ -268,7 +308,7 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
     local integer bookid
     if (IsSimSkillRune(itemid)) then
         if (LoadUnitSimedAbility(u, MAX_SKILLSLOT_COUNT)> 0) then
-             call RemoveItem(UnitAddItemById(u, ITEM_OUT_OF_SKLIICOUNT))
+             call RemoveItem(UnitAddPowerupItem(u, ITEM_OUT_OF_SKLIICOUNT))
             return
         endif
         set i = 1
@@ -281,12 +321,12 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
                 call InitUnitSimslot(u, i, abilcode)
                 call SaveUnitSimedAbility(u, i, abilcode)
                 call UpdateSimslotsStatusEnum(u, i)
-                call UnitAddItemById(u, ITEM_RUNE_EFFECT)
+                call UnitAddPowerupItem(u, ITEM_RUNE_EFFECT)
                 call CreateFloatText(u, "获得技能 - " + GetObjectName(abilcode))
                 return
             endif
             if (IsIdenticalAbility(abilcode, simscode)) then
-                call RemoveItem(UnitAddItemById(u, ITEM_REPEAT_SKILL))
+                call RemoveItem(UnitAddPowerupItem(u, ITEM_REPEAT_SKILL))
                 return
             endif
             set i = i + 1
