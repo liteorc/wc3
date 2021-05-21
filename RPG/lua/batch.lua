@@ -202,8 +202,8 @@ end
 ------------------------------------------------------------------------------------------------------------------
 function generate_simslot(index)
     local sb = generate_simskillbook('SB'..index..'0', '')
-    sb.Name = "学习技能"
-    sb.Tip = "学习技能"
+    sb.Name = "英雄技能"
+    sb.Tip = "英雄技能"
     sb.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
     sb.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
     sb.Unart = sb.Art 

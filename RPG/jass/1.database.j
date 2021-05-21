@@ -28,8 +28,7 @@ function SaveUnitHeroAbilityList takes integer unitid , string abillist returns 
     call SaveStr(g_hashtable, unitid, 'uhab', abillist)
 endfunction
 function LoadUnitIcon takes unit u returns string
-    return BlzGetUnitStringField(u, ConvertUnitStringField('uico'))
-    return LoadStr(g_hashtable, GetHandleId(u), 'uico')
+    return LoadStr(g_hashtable, GetUnitTypeId(u), 'uico')
 endfunction
 //===========================================================================
 function VersionSupportedHD takes nothing  returns boolean

@@ -218,21 +218,22 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
     call TiggerAction_SelectSimskill(u, abilcode)
 endfunction
 //===========================================================================
-function ModifyHeroSkillPointsEx takes unit whichHero, string modifyMethod returns nothing
-    local integer points = 0
+function ModifyHeroSkillPointsEx takes unit whichHero, string modifyMethod, integer points returns nothing
     local integer hascode = StringHash("UsedSkillPoints")
     if (modifyMethod == "levelup") then
         set points = GetHeroLevel(whichHero) + GetHeroLevel(whichHero) / 3
         set points = points - LoadInteger(g_hashtable, GetHandleId(whichHero), hascode)
-        call ModifyHeroSkillPoints(whichHero, bj_MODIFYMETHOD_SET, points)
+        call ModifyHeroSkillPoints(whichHero, bj_MODIFYMETHOD_SET, points)//recalc
     elseif (modifyMethod == "learn") then
         set points = LoadInteger(g_hashtable, GetHandleId(whichHero), hascode)
         call SaveInteger(g_hashtable, GetHandleId(whichHero), hascode, points + 1)
-        call UnitModifySkillPoints(whichHero, -1)
-    elseif (modifyMethod == "reset") then
-        set points = GetHeroLevel(whichHero) + GetHeroLevel(whichHero) / 3
-        call ModifyHeroSkillPoints(whichHero, bj_MODIFYMETHOD_SET, points)
-        call SaveInteger(g_hashtable, GetHandleId(whichHero), hascode, 0)
+        call UnitModifySkillPoints(whichHero, -1)//sub
+    elseif (modifyMethod == "retrain") then
+        set points = LoadInteger(g_hashtable, GetHandleId(whichHero), hascode) - points//used points
+        set points = IMaxBJ(0, points)
+        call SaveInteger(g_hashtable, GetHandleId(whichHero), hascode, points)
+        set points = GetHeroLevel(whichHero) + GetHeroLevel(whichHero) / 3 - points//remains points
+        call ModifyHeroSkillPoints(whichHero, bj_MODIFYMETHOD_SET, points)//recalc
     endif
 endfunction
 //===========================================================================
@@ -248,7 +249,7 @@ function TriggerAction_Simskill takes nothing returns nothing
     local unit u = GetTriggerUnit()
     local integer book
     call SelectHeroSimskill(u, GetSpellAbilityId(), false)
-    call ModifyHeroSkillPointsEx(u,"learn")
+    call ModifyHeroSkillPointsEx(u,"learn", -1)
     if (GetHeroSkillPoints(u) < 1) then
         set book = GetSimskillBookId(u, 0)
         call UnitRemoveAbility(u, book)
@@ -307,7 +308,7 @@ endfunction
 //===========================================================================
 function TriggerAction_HeroLevelup takes nothing returns nothing
     local unit u = GetLevelingUnit()
-    call ModifyHeroSkillPointsEx(u, "levelup")
+    call ModifyHeroSkillPointsEx(u, "levelup", 1)
     call UpdateSimslotsStatus(u)
 endfunction
 //===========================================================================
@@ -335,10 +336,11 @@ endfunction
 function TriggerAction_HeroUseItem takes nothing returns nothing
     local unit  u = GetManipulatingUnit()
     local integer itemid =  GetItemTypeId(GetManipulatedItem())
-    local integer i 
     local integer simscode
     local integer abilcode
     local integer bookid
+    local integer points
+    local integer i 
     if (IsSimSkillRune(itemid)) then
         if (LoadUnitSimedAbility(u, MAX_SKILLSLOT_COUNT)> 0) then
              call RemoveItem(UnitAddPowerupItem(u, ITEM_OUT_OF_SKLIICOUNT))
@@ -367,17 +369,25 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
         endloop
     elseif (itemid == 'tret') then
         set i = 0
+        set points = 0
+        set bj_forLoopAIndexEnd = 4//TODO: Ntin
         loop
             set abilcode = LoadUnitSimedAbility(u, i)
-            if abilcode > 0 then
-                call UnitRemoveSimedAbility(u, abilcode)
-                call SaveUnitSimedAbility(u, i, 0)
+            if (abilcode > 0) then
+                if (BlzGetUnitAbilityCooldownRemaining(u, abilcode) <= 0) then
+                    set points = points + GetUnitAbilityLevel(u, abilcode)
+                    call UnitRemoveSimedAbility(u, abilcode)
+                    if (i > bj_forLoopAIndexEnd) then//extra
+                        call SaveUnitSimedAbility(u, i, 0)
+                    else//default
+                        call InitUnitSimslot(u, i, abilcode)
+                    endif
+                endif
             endif
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
-        call InitDefaultSimslotList(u)
-        call ModifyHeroSkillPointsEx(u, "reset")
+        call ModifyHeroSkillPointsEx(u, "retrain", points)
         call UpdateSimslotsStatus(u)
     endif
 endfunction
