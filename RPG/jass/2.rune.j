@@ -166,7 +166,7 @@ function PostProc_AddUnitSimedAbility takes unit u, integer abilcode returns not
 endfunction
 function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level returns nothing
     if (level > 1) then
-        call SetUnitAbilityLevel(u, abilcode, level + 1)
+        call SetUnitAbilityLevel(u, abilcode, level)
         return
     endif
     ///Add Ability
@@ -218,6 +218,24 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
     call TiggerAction_SelectSimskill(u, abilcode)
 endfunction
 //===========================================================================
+function ModifyHeroSkillPointsEx takes unit whichHero, string modifyMethod returns nothing
+    local integer points = 0
+    local integer hascode = StringHash("UsedSkillPoints")
+    if (modifyMethod == "levelup") then
+        set points = GetHeroLevel(whichHero) + GetHeroLevel(whichHero) / 3
+        set points = points - LoadInteger(g_hashtable, GetHandleId(whichHero), hascode)
+        call ModifyHeroSkillPoints(whichHero, bj_MODIFYMETHOD_SET, points)
+    elseif (modifyMethod == "learn") then
+        set points = LoadInteger(g_hashtable, GetHandleId(whichHero), hascode)
+        call SaveInteger(g_hashtable, GetHandleId(whichHero), hascode, points + 1)
+        call UnitModifySkillPoints(whichHero, -1)
+    elseif (modifyMethod == "reset") then
+        set points = GetHeroLevel(whichHero) + GetHeroLevel(whichHero) / 3
+        call ModifyHeroSkillPoints(whichHero, bj_MODIFYMETHOD_SET, points)
+        call SaveInteger(g_hashtable, GetHandleId(whichHero), hascode, 0)
+    endif
+endfunction
+//===========================================================================
 function TriggerCondition_Simskill takes nothing returns boolean
     local integer value = GetSpellAbilityId()
     if (value == ABILITY_SIMSKILL_SLOTA) then
@@ -230,7 +248,7 @@ function TriggerAction_Simskill takes nothing returns nothing
     local unit u = GetTriggerUnit()
     local integer book
     call SelectHeroSimskill(u, GetSpellAbilityId(), false)
-    call UnitModifySkillPoints(u, -1)
+    call ModifyHeroSkillPointsEx(u,"learn")
     if (GetHeroSkillPoints(u) < 1) then
         set book = GetSimskillBookId(u, 0)
         call UnitRemoveAbility(u, book)
@@ -247,6 +265,7 @@ function InitUnitSimslot takes unit u, integer slotno, integer abilcode returns 
     local integer slotcode
 
     set slotcode = GetSimslotCode(u, slotno)
+    call SetUnitAbilityLevel(u, slotcode, 1)//init
     call BlzSetAbilityIcon(slotcode, LoadAbilityResearchIcon(abilcode))
     set obj = BlzGetUnitAbility(u, slotcode)
     set max = LoadAbilityMaxLevel(abilcode)
@@ -288,9 +307,7 @@ endfunction
 //===========================================================================
 function TriggerAction_HeroLevelup takes nothing returns nothing
     local unit u = GetLevelingUnit()
-    if (ModuloInteger(GetHeroLevel(u), 3) == 0) then
-        call UnitModifySkillPoints(u, 1)
-    endif
+    call ModifyHeroSkillPointsEx(u, "levelup")
     call UpdateSimslotsStatus(u)
 endfunction
 //===========================================================================
@@ -304,13 +321,16 @@ function CreateFloatText takes unit u, string s returns nothing
     call DestroyTextTag(tag)
 endfunction
 function UnitRemoveSimedAbility takes unit u, integer abilcode returns nothing
-    call UnitRemoveAbility(u, abilcode)
     if (abilcode == 'aews') then
         call UnitRemoveAbility(u, ABILITY_WELLSPRING_MANA)
         call UnitRemoveAbility(u, ABILITY_WELLSPRING_RESTORE)
     elseif(abilcode == 'aetf') then
+        call SetUnitAbilityState(u, 'aetf', false, false)
+        call SetUnitAbilityState(u, 'acpf', false, false)
         call UnitRemoveAbility(u, 'acpf')
+        call UnitRemoveAbility(u, 'Aetl')
     endif
+    call UnitRemoveAbility(u, abilcode)//remove
 endfunction
 function TriggerAction_HeroUseItem takes nothing returns nothing
     local unit  u = GetManipulatingUnit()
@@ -345,7 +365,7 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
-    elseif (itemid == 'retr') then//TODO: TEST
+    elseif (itemid == 'tret') then
         set i = 0
         loop
             set abilcode = LoadUnitSimedAbility(u, i)
@@ -356,13 +376,8 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
-        call InitDefaultSimslotList(u)  
-        set i = GetHeroLevel(u) + GetHeroLevel(u) / 3 - GetHeroSkillPoints(u)
-        //set itemid = GetUnitTypeId(u)
-        // if (itemid == 'Ntin') then
-        //     set i = i + 1
-        // endif
-        call UnitModifySkillPoints(u, i)
+        call InitDefaultSimslotList(u)
+        call ModifyHeroSkillPointsEx(u, "reset")
         call UpdateSimslotsStatus(u)
     endif
 endfunction

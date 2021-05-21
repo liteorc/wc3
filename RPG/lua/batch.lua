@@ -417,7 +417,7 @@ function exec_proc()
     obj = slk.ability['Amgr']:new 'aews'
     obj.Name = tech.Name
     obj.race = tech.race
-    obj.Art = slk.ability['Aews'].Art
+    obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNWellSpring.blp"
     obj.ResearchArt = tech.Art
     obj.Buttonpos = BUTTONPOS
     obj.EditorSuffix = "(clone)"
