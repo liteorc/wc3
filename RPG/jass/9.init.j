@@ -94,15 +94,42 @@ endfunction
 function TriggerCondition_DeathIsConstruct takes nothing returns boolean
     return IsUnitType(GetDyingUnit(), UNIT_TYPE_STRUCTURE)
 endfunction
+function ChooseRandomName takes string str returns string 
+    local string name
+    local integer i = GetRandomInt(0,100)
+    if (i > 66) then
+        set i = GetRandomInt(1, 10)
+        set i = ChooseRandomCreep(i)
+        set name = GetObjectName(i)
+    else
+        set i = GetRandomInt(1, 10)
+        set i = ChooseRandomItem(i)
+        set name = GetObjectName(i)
+    endif
+    if (StringContains(str, name)) then
+        call SetRandomSeed(R2I(GetTimeOfDay()))
+        return ChooseRandomName(str)
+    endif
+    return name
+endfunction
+
 function InitAI takes nothing returns nothing
     local integer i
     local player  p
     local trigger trg
+    local unitpool pool
+    local string str
+    local string name
 
+    set str = ""
     set i = 0
     loop
         set p = Player(i)
         if ((GetPlayerSlotState(p) == PLAYER_SLOT_STATE_PLAYING) and  (GetPlayerController(p) == MAP_CONTROL_COMPUTER)) then
+            set name = ChooseRandomName(str)
+            call SetPlayerName(p, name)
+            set str = name + "#" + str
+
             set trg = CreateTrigger()
             call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_DEATH, null)
             call TriggerAddCondition(trg, Condition(function TriggerCondition_DeathIsConstruct))

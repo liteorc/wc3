@@ -142,8 +142,28 @@ function UpdateSimslotsStatus takes unit u returns nothing
         set i = i + 1
         exitwhen i > MAX_SKILLSLOT_COUNT 
     endloop
+    //simskill icon
+    if (GetHeroSkillPoints(u) > 0) then
+        set i = GetSimskillBookId(u, 0)
+        call BlzSetAbilityIcon(i, BlzGetAbilityActivatedIcon(i))
+    else
+        call BlzSetAbilityIcon(GetSimskillBookId(u, 0), LoadUnitIcon(u))
+    endif
 endfunction
 //===========================================================================
+function PostProc_AddUnitSimedAbility takes unit u, integer abilcode returns nothing
+    if (abilcode == 'aews') then
+        call UnitAddAbility(u, ABILITY_WELLSPRING_MANA)
+        call UnitAddAbility(u, ABILITY_WELLSPRING_RESTORE)
+        call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_MANA)
+        call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_RESTORE)
+    elseif (abilcode == 'aetf') then
+        set abilcode = 'acpf'
+        call UnitAddAbility(u, abilcode)
+        call UnitMakeAbilityPermanent(u, true, abilcode)
+        call SetUnitAbilityState(u, abilcode, false, true)
+    endif
+endfunction
 function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level returns nothing
     if (level > 1) then
         call SetUnitAbilityLevel(u, abilcode, level + 1)
@@ -152,21 +172,15 @@ function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level 
     ///Add Ability
     call UnitAddAbility(u, abilcode)
     call UnitMakeAbilityPermanent(u, true, abilcode)
-    if (abilcode == 'aews') then
-        call UnitAddAbility(u, ABILITY_WELLSPRING_MANA)
-        call UnitAddAbility(u, ABILITY_WELLSPRING_RESTORE)
-        call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_MANA)
-        call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_RESTORE)
-    endif
+    call PostProc_AddUnitSimedAbility(u, abilcode)
 endfunction
 function TriggerAction_Ethereal takes nothing returns nothing
     local unit u = GetTriggerUnit()
     local integer abilcode = GetSpellAbilityId()
     if (abilcode == 'aetf' ) then
-        call UnitRemoveAbility(u, abilcode)
+        call SetUnitAbilityState(u, abilcode, false, true)
         set abilcode = 'acpf'
-        call UnitAddAbility(u, abilcode)
-        call UnitMakeAbilityPermanent(u, true, abilcode)
+        call SetUnitAbilityState(u, abilcode, false, false)
         call BlzStartUnitAbilityCooldown(u, abilcode, 29.3)
         set abilcode = 'Aetl'
         call UnitAddAbility(u, abilcode)
@@ -174,12 +188,9 @@ function TriggerAction_Ethereal takes nothing returns nothing
         call UnitMakeAbilityPermanent(u, true, abilcode)
     elseif (abilcode == 'acpf' ) then
         call UnitRemoveAbility(u, 'Aetl')
-        call UnitRemoveAbility(u, abilcode)
-        set abilcode = 'aetf'
-        call UnitAddAbility(u, abilcode)
-        call UnitMakeAbilityPermanent(u, true, abilcode)
+        call SetUnitAbilityState(u, 'acpf', false, true)
+        call SetUnitAbilityState(u, 'aetf', false, false)
     endif
-
 endfunction
 function TiggerAction_SelectSimskill takes unit u, integer abilcode returns nothing
     local trigger trg
@@ -284,12 +295,12 @@ function TriggerAction_HeroLevelup takes nothing returns nothing
 endfunction
 //===========================================================================
 function CreateFloatText takes unit u, string s returns nothing
-    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 10, 100, 100, 0, 0)
+    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 10, 50, 0, 100, 0)
     call SetTextTagLifespan(tag, 2)
     call SetTextTagPermanent(tag, false)
-    call SetTextTagVelocityBJ(tag, 168, 90)
-    call SetTextTagFadepoint(tag, 0.5)
-    call TriggerSleepAction(1.5)
+    call SetTextTagVelocityBJ(tag, 175, 90)
+    call SetTextTagFadepoint(tag, 0.67)
+    call TriggerSleepAction(1.67)
     call DestroyTextTag(tag)
 endfunction
 function UnitRemoveSimedAbility takes unit u, integer abilcode returns nothing
@@ -297,6 +308,8 @@ function UnitRemoveSimedAbility takes unit u, integer abilcode returns nothing
     if (abilcode == 'aews') then
         call UnitRemoveAbility(u, ABILITY_WELLSPRING_MANA)
         call UnitRemoveAbility(u, ABILITY_WELLSPRING_RESTORE)
+    elseif(abilcode == 'aetf') then
+        call UnitRemoveAbility(u, 'acpf')
     endif
 endfunction
 function TriggerAction_HeroUseItem takes nothing returns nothing
@@ -333,23 +346,24 @@ function TriggerAction_HeroUseItem takes nothing returns nothing
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
     elseif (itemid == 'retr') then//TODO: TEST
-        set i = 1
+        set i = 0
         loop
             set abilcode = LoadUnitSimedAbility(u, i)
-            exitwhen abilcode < 1
-            call UnitRemoveSimedAbility(u, abilcode)
-            call SaveUnitSimedAbility(u, i, 0)
+            if abilcode > 0 then
+                call UnitRemoveSimedAbility(u, abilcode)
+                call SaveUnitSimedAbility(u, i, 0)
+            endif
             set i = i + 1
             exitwhen i > MAX_SKILLSLOT_COUNT
         endloop
-        call UnitRemoveAbility(u,'aamk')
         call InitDefaultSimslotList(u)  
         set i = GetHeroLevel(u) + GetHeroLevel(u) / 3 - GetHeroSkillPoints(u)
-        set itemid = GetUnitTypeId(u)
+        //set itemid = GetUnitTypeId(u)
         // if (itemid == 'Ntin') then
         //     set i = i + 1
         // endif
         call UnitModifySkillPoints(u, i)
+        call UpdateSimslotsStatus(u)
     endif
 endfunction
 //===========================================================================

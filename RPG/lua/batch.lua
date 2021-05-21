@@ -2,8 +2,9 @@
 local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,Auco,AIpm,Apig,Aspo,Acn2,Aven,Aeat,ANba,AHfa,ANfa,AEim,Aadm,Aivs,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ANpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,AHds,ANdp"
 local BUTTONPOS = {0,1}
 local REQLEVEL = 3
+local slk = require 'slk'
 ------------------------------------------------------------------------------------------------------------------
-function revise_research_art(path, onoff)
+function coerce_research_art(path, onoff)
     if onoff then
         return string.gsub(path, "On.blp", ".blp", 1)
     end
@@ -33,8 +34,48 @@ function generate_item(itemid, abilObj)
     --obj.permanent()
 end
 ------------------------------------------------------------------------------------------------------------------
+function postproc_ability(obj, abilcode)
+    if (string.match(obj.Art, "Immolation")) then
+        obj.ResearchArt = slk.ability['AEim'].Art
+        return
+    end
+    if (abilcode == 'aEbl') then
+        obj.Art = slk.ability['ANbl'].Art
+        obj.ResearchArt = obj.Art
+        return
+    end
+    if (abilcode == 'aOws') then
+        obj.Art = slk.ability['Awrg'].Art
+        obj.ResearchArt = obj.Art
+        return
+    end
+    if (abilcode == 'aHtb') then
+        obj.Art = slk.ability['Asth'].Art
+        obj.ResearchArt = obj.Art
+        return
+    end
+    if (abilcode == 'aHtc') then
+        obj.Art = slk.ability['ACtc'].Art
+        obj.ResearchArt = obj.Art
+        return
+    end
+    if (abilcode == 'aNbf') then
+        obj.Art = slk.ability['ACbc'].Art
+        obj.ResearchArt = obj.Art
+        return
+    end
+    if (abilcode == 'aivs') then
+        obj.Art = slk.ability['Aivs'].Art
+        obj.ResearchArt = obj.Art
+        obj.targs = obj.targs..',self'--Invisibility self
+        return
+    end
+    --default
+    obj.ResearchArt = coerce_research_art(obj.Art, string.len(obj.Unart) > 0)
+end
 function clone_ability(abilcode)
-    local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", abilcode, string.gsub(abilcode, 'A', 'a', 1)))
+    local id = string.gsub(abilcode, 'A', 'a', 1)
+    local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", abilcode, id))
     local obj = func()
 
     obj.Buttonpos = BUTTONPOS
@@ -43,11 +84,7 @@ function clone_ability(abilcode)
     obj.hero = 1
     obj.checkDep = 0
     obj.reqLevel = REQLEVEL
-    if (string.match(obj.Art, "Immolation")) then
-        obj.ResearchArt = "ReplaceableTextures\\CommandButtons\\BTNImmolationOn.blp"
-    else
-        obj.ResearchArt = revise_research_art(obj.Art, string.len(obj.Unart) > 0)
-    end
+    postproc_ability(obj, id)
 
     generate_item(string.gsub(abilcode, 'A', 'R', 1), obj)
     return obj
@@ -64,7 +101,6 @@ function batch_generate(codelist, func, param)
 end
 ------------------------------------------------------------------------------------------------------------------
 function generate_enginskill(unitid, abillist)
-    local slk = require 'slk'
     local enginskillid = 'e'..(string.sub(unitid, 2))
     local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", 'ANeg', enginskillid))
     local obj = func()
@@ -103,7 +139,6 @@ function generate_simskillbook(bookid, abillist)
 end
 ------------------------------------------------------------------------------------------------------------------
 function clone_tinker_ability(template, list, callback)
-    local slk = require 'slk'
     local abilcode = list[1]
     local func = load(string.format("return (require 'slk').ability.%s:new \'%s\'", template, string.gsub(abilcode, 'A', 'a', 1)))
     local obj = func()
@@ -114,7 +149,7 @@ function clone_tinker_ability(template, list, callback)
     obj.race = src.race
     obj.hero = src.hero
     obj.Art = src.Art
-    obj.ResearchArt = revise_research_art(src.Art, false)
+    obj.ResearchArt = coerce_research_art(src.Art, false)
 
     local count = slk.ability['ANeg'].levels
     local level = 0
@@ -131,8 +166,6 @@ function clone_tinker_ability(template, list, callback)
 end
 ------------------------------------------------------------------------------------------------------------------
 function batch_execute()
-    local slk = require 'slk'
-    
     local db = {	
         { unitid='Hamg', abillist="AHbz,AHab,AHwe,AHmt" },
         { unitid='Hblm', abillist="AHfs,AHbn,AHdr,AHpx" },
@@ -173,6 +206,7 @@ function generate_simslot(index)
     sb.Tip = "学习技能"
     sb.Ubertip = "打开学习技能菜单，以便你分配未使用的英雄技能点。"
     sb.Art = "ReplaceableTextures\\CommandButtons\\BTNSkillz.blp"
+    sb.Unart = sb.Art 
     sb.Hotkey = "O"
     sb.Buttonpos = {0,0}
     sb.EditorSuffix = string.format("(hero %d)", index)
@@ -209,7 +243,6 @@ function generate_simslot(index)
     end
 end
 function generate_attibutemodskill(levels)
-    local slk = require 'slk'
     local aamk = slk.ability['Aamk']:new 'aamk'
     aamk.levels = levels
     aamk.EditorSuffix = "(clone)"
@@ -249,7 +282,6 @@ function generate_attibutemodskill(levels)
 end
 ------------------------------------------------------------------------------------------------------------------
 function prev_proc()
-    local slk = require 'slk'
     local heroCount = 3
     for i = 1,heroCount do
         generate_simslot(i)
@@ -276,16 +308,17 @@ function prev_proc()
     -------------------------------------------------------------------------------------
     obj = slk.ability['AIam'] : new 'NULL'
     obj.Name = "(无效果)"
-    obj.TargetArt = ''
     obj.DataA1 = 0
     obj.Art = ''
+    obj.TargetArt = ''
 
     obj =  slk.ability['AIam'] : new 'arfx'
     obj.Name = "获得符文技能"
     obj.EditorSuffix = "(特效)"
     obj.DataA1 = 0
     obj.Art = ''
-    obj.TargetArt = "Abilities\\Spells\\Items\\StaffOfPurification\\PurificationCaster.mdl"
+    obj.TargetArt = ''
+    obj.CasterArt = "Abilities\\Spells\\Items\\StaffOfPurification\\PurificationCaster.mdl"
 
     obj =  slk.item['rman'] : new 'rrfx'
     obj.Name = "获得符文技能"
@@ -293,8 +326,6 @@ function prev_proc()
 end
 ----------------------------------------------------------------------------------------
 function exec_proc()
-    local slk = require 'slk'
-
     batch_execute()
     -------------------------------------------------------------------------------------
     --Engineering Upgrade
@@ -386,7 +417,7 @@ function exec_proc()
     obj = slk.ability['Amgr']:new 'aews'
     obj.Name = tech.Name
     obj.race = tech.race
-    obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNWellSpring.blp"
+    obj.Art = slk.ability['Aews'].Art
     obj.ResearchArt = tech.Art
     obj.Buttonpos = BUTTONPOS
     obj.EditorSuffix = "(clone)"
@@ -412,7 +443,7 @@ function exec_proc()
     obj.DataA = 1
     obj.targs = "friend,structure"
     obj.race = "other"
-    obj.TargetArt = "Abilities\\Spells\\Orc\\WarDrums\\DrumsCasterHeal.mdl"
+    obj.TargetArt = slk.ability['AIwd'].Targetart
 
     obj = slk.ability['AIae']:new 'Atwe'
     obj.Name = "哨塔结界-攻速加成"
@@ -425,9 +456,9 @@ function exec_proc()
 
     obj = slk.unit['ohwd']:new 'ntow'
     obj.Name = "哨塔结界"
-    obj.Art = "ReplaceableTextures\\CommandButtons\\BTNOrcBattleStandard.blp"
+    obj.Art = slk.ability['AIfx'].Art--orcish battle standard
     obj.unitSound = "SentryWard"
-    obj.file = "Objects\\InventoryItems\\BattleStandard\\BattleStandard.mdl"
+    obj.file = slk.ability['AIfx'].Targetart
     obj.abilList  = "Aeth,Avul,Atwr,Atwe"
     obj.race = "other"
 
@@ -438,7 +469,7 @@ function exec_proc()
     obj.EditorSuffix = ""
     obj.Tip = "哨塔结界"
     obj.Ubertip = "提高范围内所有防御塔<Atwr,DataA1,%>%的攻击速度和<Atwe,DataB1,%>%的攻击力。|n持续<Atwd,Dur1>秒。"
-    obj.Art = "ReplaceableTextures\\CommandButtons\\BTNOrcBattleStandard.blp"
+    obj.Art = slk.ability['AIfx'].Art--orcish battle standard
     obj.Cost = 0
     obj.Cool = 135
     obj.Dur = 45
@@ -451,8 +482,6 @@ function exec_proc()
 end
 ----------------------------------------------------------------------------------------
 function post_proc()
-    local slk = require 'slk'
-
     local obj = slk.ability['aeat']
     obj.Cool = 30.0
     
