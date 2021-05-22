@@ -313,8 +313,8 @@ function TriggerAction_HeroLevelup takes nothing returns nothing
 endfunction
 //===========================================================================
 function CreateFloatText takes unit u, string s returns nothing
-    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 10, 50, 0, 100, 0)
-    call SetTextTagLifespan(tag, 2)
+    local texttag tag = CreateTextTagUnitBJ(s, u, 0, 9.6, 0, 100, 0, 0)
+    call SetTextTagLifespan(tag, 2.1)
     call SetTextTagPermanent(tag, false)
     call SetTextTagVelocityBJ(tag, 175, 90)
     call SetTextTagFadepoint(tag, 0.67)
