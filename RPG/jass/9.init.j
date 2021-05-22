@@ -15,6 +15,7 @@ function InitUser takes nothing returns nothing
     local player p = GetLocalPlayer()
 
     call SetPlayerAbilityAvailable(p, 'Ashm', false)
+    call SetPlayerAbilityAvailable(p, 'AIhm', false)
 
     call SetPlayerState(p, PLAYER_STATE_FOOD_CAP_CEILING, 30)
     //call SetPlayerMaxHeroesAllowed(bj_MELEE_HERO_LIMIT + 1, p)
@@ -88,7 +89,9 @@ function TriggerAction_AISurrender takes nothing returns nothing
         endif
     endif
     if defeated then
-        call MeleeDoDefeat(p)
+        call BlzDisplayChatMessage(p, 0, "gg")
+        call MeleeTriggerActionPlayerLeft()
+        call DestroyTrigger(GetTriggeringTrigger())
     endif
 endfunction
 function TriggerCondition_DeathIsConstruct takes nothing returns boolean
@@ -129,6 +132,7 @@ function InitAI takes nothing returns nothing
             set name = ChooseRandomName(str)
             call SetPlayerName(p, name)
             set str = name + "#" + str
+            call BlzDisplayChatMessage(p, 0, "gl")
 
             set trg = CreateTrigger()
             call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_DEATH, null)
