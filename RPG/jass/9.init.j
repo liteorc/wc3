@@ -90,7 +90,10 @@ function TriggerAction_AISurrender takes nothing returns nothing
     endif
     if defeated then
         call BlzDisplayChatMessage(p, 0, "gg")
-        call MeleeTriggerActionPlayerLeft()
+        call CachePlayerHeroData(p)
+        call MeleeDoLeave(p)
+        call MakeUnitsPassiveForPlayer(p)
+        call MeleeCheckForLosersAndVictors()
         call DestroyTrigger(GetTriggeringTrigger())
     endif
 endfunction

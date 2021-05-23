@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------
-local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,Auco,AIpm,Apig,Aspo,Acn2,Aven,Aeat,ANba,AHfa,ANfa,AEim,Aadm,Aivs,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ANpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,AHds,ANdp"
+local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,Auco,AIpm,Apig,Aspo,Acn2,Aven,Aeat,ANba,AHfa,ANfa,AEim,Aadm,Aivs,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ANpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,AHds,ANdp,Aps2,Adtn"
 local BUTTONPOS = {0,1}
 local REQLEVEL = 3
 local slk = require 'slk'
