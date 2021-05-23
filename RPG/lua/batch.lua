@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------
-local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,Auco,AIpm,Apig,Aspo,Acn2,Aven,Aeat,ANba,AHfa,ANfa,AEim,Aadm,Aivs,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ANpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,AHds,ANdp,Aps2,Adtn"
+local ABILITYLIST = "AHbz,AHwe,ANsq,AOcr,AOwk,AHbn,AHfs,AHdr,AUim,AUts,ANba,ANdr,ANsi,AUdc,AEev,AEim,AEmb,AUsl,AUcs,AOcl,AOsf,AEer,AEfn,AUfu,AUfn,AHbh,AHtb,AHtc,ANfl,ANfa,ANms,AHds,AHhb,ANbf,ANdb,ANht,ANca,ANrf,AHfa,AOsh,AOws,AOhw,AOhx,AOsw,AEbl,AEsh,ANab,ANhs,ANso,ANfd,ANdp,ANmo,ANwm,Aadm,Aabs,Aast,Aam2,Aap1,Abof,Absk,Ablo,ACbf,Acn2,ACcv,Ache,Acmg,Acri,Acrs,Acyc,Adef,ACdv,Advm,Adcn,Adis,Aeat,Aegr,Aens,Aexh,Afae,Afbk,ACfb,Afla,Afrz,Afzy,Afra,ACcb,Assk,Ahea,Ahwd,Ainf,Aivs,Alsh,Aliq,Amdf,Amls,Amfl,ANmr,ACpa,Apig,Apsh,Apxf,Aply,Aps2,Awar,Apg2,Arai,Arej,Arpl,Arpm,Aroa,Aroc,Asal,Aesr,Aeye,Aslo,Aspo,Asps,Aspl,Asta,Atau,ACtb,Auco,Aven,Aweb,AIpm,Aobs,Aotr,Augf,Aemk,Aews"
 local BUTTONPOS = {0,1}
 local REQLEVEL = 3
 local slk = require 'slk'
@@ -65,11 +65,45 @@ function postproc_ability(obj, abilcode)
         return
     end
     if (abilcode == 'aivs') then
-        obj.Art = slk.ability['Aivs'].Art
         obj.ResearchArt = obj.Art
-        obj.targs = obj.targs..',self'--Invisibility self
+        obj.targs = obj.targs..',self'
         return
     end
+    if (abilcode == 'alsh') then
+        obj.ResearchArt = obj.Art
+        obj.targs = obj.targs..',self'
+        return
+    end
+    if (abilcode == 'aNmr') then
+        obj.Art ="ReplaceableTextures\\CommandButtons\\btnlament.blp"
+        obj.ResearchArt = obj.Art
+        obj.Cost = 25
+        obj.Cool = 6
+        return
+    end
+    if (abilcode == 'aIpm') then
+        obj.Name = "地精地雷"
+        obj.Tip = "地精地雷"
+        obj.Ubertip = "在目标位置放置一个隐藏的地雷。如果有敌人靠近地雷，则地雷会被激活，对周围的单位造成范围伤害。|n全伤害范围：<Amnx,DataA1>码|n全伤害数值：<Amnx,DataB1>点|n部分伤害范围：<Amnx,DataC1>码|n部分伤害数值：<Amnx,DataD1>点|n|n|cffffcc00最多可放置3颗地雷。|r"
+        obj.Cost = 100
+        obj.reqLevel = 6
+        return
+    end
+    ---------YDWE UPGRADE--------
+    if (abilcode == 'apxf') then
+        obj.Ubertip = "凤凰会向周围的敌人喷吐魔法烈焰，造成<Apxf,DataA1>点初始伤害，以及每秒<Apxf,DataB1>点的燃烧伤害，持续<Apxf,Dur1>秒。"
+    elseif (abilcode == 'augf') then
+        obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNGhoulFrenzy.blp"
+    elseif (abilcode == 'aobs') then
+        obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNBerserk.blp"
+    elseif (abilcode == 'aotr') then
+        obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNRegenerate.blp"
+    elseif (abilcode == 'aemk') then
+        obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNMarksmanship.blp"
+    elseif (abilcode == 'aews') then
+        obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNWellSpring.blp"
+    end
+    ------------------------------------
     --default
     obj.ResearchArt = coerce_research_art(obj.Art, string.len(obj.Unart) > 0)
 end
@@ -329,7 +363,7 @@ function exec_proc()
     batch_execute()
     -------------------------------------------------------------------------------------
     --Engineering Upgrade
-    clone_tinker_ability('Amgr', {'ANeg'}, 
+    clone_tinker_ability('APai', {'ANeg'}, 
     function(o, s, v, x) 
     end)
     --Pocket Factory
@@ -414,19 +448,6 @@ function exec_proc()
     -------------------------------------------------------------------------------------
     --Well Spring
     local tech = slk.upgrade['Rews']
-    obj = slk.ability['Amgr']:new 'aews'
-    obj.Name = tech.Name
-    obj.race = tech.race
-    obj.Art = "ReplaceableTextures\\PassiveButtons\\PASBTNWellSpring.blp"
-    obj.ResearchArt = tech.Art
-    obj.Buttonpos = BUTTONPOS
-    obj.EditorSuffix = "(clone)"
-    obj.hero = 1
-    obj.checkDep = 0
-    obj.Tip = tech.Name
-    obj.Ubertip = tech.Ubertip
-    obj.reqLevel = REQLEVEL
-    generate_item('Rews', obj)
     obj = slk.ability['AImz']:new 'awsM'
     obj.Name = tech.Name
     obj.race = tech.race
@@ -437,6 +458,34 @@ function exec_proc()
     obj.race = tech.race
     obj.EditorSuffix = "(法力恢复速度加快)"
     obj.DataA1 = tech.base2
+    -------------------------------------------------------------------------------------
+    --GoblinSapper
+    obj = slk.ability['ANcl']:new 'agsp'
+    obj.Name = "召唤地精工兵"
+    obj.Tip = obj.Name
+    obj.Ubertip = "召唤一支地精工兵爆破小队，对付建筑效果极佳。|n|cffffcc00能“咔嘣”地面单位和树木，在小范围内造成<Asds,DataB1>点伤害。"
+    obj.Art = slk.unit['ngsp'].Art
+    obj.ResearchArt = obj.Art
+    obj.ButtonPos = BUTTONPOS
+    obj.levels = 1
+    obj.reqLevel = REQLEVEL
+    obj.Hotkey = 'P'
+    obj.CasterArt = ''
+    obj.TargetArt = ''
+    obj.EffectArt = slk.ability['ANsg'].TargetArt
+    obj.Animnames = 'spell,slam'
+    obj.Cost = 100
+    obj.Cool = 30
+    obj.Dur = 45
+    obj.HeroDur = 45
+    obj.DataA= 0.001
+    obj.DataB= 2
+    obj.DataC= 29
+    obj.DataD = 0.5
+    obj.DataE = 0
+    obj.DataF = 'snapper'
+    obj.Order = 'snapper'
+    generate_item('Rgsp', obj)
     -------------------------------------------------------------------------------------
     obj = slk.ability['AIar']:new 'Atwr'
     obj.Name = "哨塔结界-攻击力加成"
@@ -479,14 +528,18 @@ function exec_proc()
     obj.checkDep = 0
     obj.EditorSuffix = "(defend)"
     -------------------------------------------------------------------------------------
+    --Phoenix Fire
+    obj = slk.ability['Ahpe'] : new 'apxi'
+    obj.ButtonPos = BUTTONPOS
+    obj.Tip =  slk.ability['apxf'].Tip
+    obj.Ubertip =  slk.ability['apxf'].Ubertip
 end
 ----------------------------------------------------------------------------------------
 function post_proc()
-    local obj = slk.ability['aeat']
-    obj.Cool = 30.0
-    
+    obj = slk.ability['aeat']
+    obj.Cool = 30.0  
     -----------------------------------------------------
-    local buf = slk.buff['BUts']:new 'bUts'
+    buf = slk.buff['BUts']:new 'bUts'
     buf.TargetArt = "Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestMountRight.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestMountLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestRight.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestRight.mdl"
     buf.Targetattachcount = 6
     buf.Targetattach = 'chest'

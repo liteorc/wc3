@@ -4,6 +4,7 @@ globals
     constant integer ABILITY_SIMSKILL_SLOTA = 'SL00'
     constant integer ABILITY_WELLSPRING_MANA = 'awsM'
     constant integer ABILITY_WELLSPRING_RESTORE = 'awsR'
+    constant integer ABILITY_PHOENIXFIRE_ICON = 'apxi'
 
     constant integer ITEM_OUT_OF_SKLIICOUNT = 'rful'
     constant integer ITEM_REPEAT_SKILL = 'rrpt'
@@ -151,28 +152,44 @@ function UpdateSimslotsStatus takes unit u returns nothing
     endif
 endfunction
 //===========================================================================
-function PostProc_AddUnitSimedAbility takes unit u, integer abilcode returns nothing
+function UnitAddSimedAbility takes unit u, integer abilcode returns nothing
+    call UnitAddAbility(u, abilcode)
+    call UnitMakeAbilityPermanent(u, true, abilcode)
     if (abilcode == 'aews') then
         call UnitAddAbility(u, ABILITY_WELLSPRING_MANA)
-        call UnitAddAbility(u, ABILITY_WELLSPRING_RESTORE)
         call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_MANA)
+        call UnitAddAbility(u, ABILITY_WELLSPRING_RESTORE)
         call UnitMakeAbilityPermanent(u, true, ABILITY_WELLSPRING_RESTORE)
     elseif (abilcode == 'aetf') then
         set abilcode = 'acpf'
         call UnitAddAbility(u, abilcode)
         call UnitMakeAbilityPermanent(u, true, abilcode)
         call SetUnitAbilityState(u, abilcode, false, true)
+    elseif (abilcode == 'apxf') then
+        call UnitAddAbility(u, ABILITY_PHOENIXFIRE_ICON)
+        call UnitMakeAbilityPermanent(u, true, ABILITY_PHOENIXFIRE_ICON)
+    endif
+endfunction
+function UnitRemoveSimedAbility takes unit u, integer abilcode returns nothing
+    call UnitRemoveAbility(u, abilcode)
+    if (abilcode == 'aews') then
+        call UnitRemoveAbility(u, ABILITY_WELLSPRING_MANA)
+        call UnitRemoveAbility(u, ABILITY_WELLSPRING_RESTORE)
+    elseif(abilcode == 'apxf') then
+        call UnitRemoveAbility(u, ABILITY_PHOENIXFIRE_ICON)
+    elseif(abilcode == 'aetf') then
+        call SetUnitAbilityState(u, 'aetf', false, false)
+        call SetUnitAbilityState(u, 'acpf', false, false)
+        call UnitRemoveAbility(u, 'acpf')
+        call UnitRemoveAbility(u, 'Aetl')
     endif
 endfunction
 function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level returns nothing
     if (level > 1) then
         call SetUnitAbilityLevel(u, abilcode, level)
-        return
+     else
+        call UnitAddSimedAbility(u, abilcode)
     endif
-    ///Add Ability
-    call UnitAddAbility(u, abilcode)
-    call UnitMakeAbilityPermanent(u, true, abilcode)
-    call PostProc_AddUnitSimedAbility(u, abilcode)
 endfunction
 function TriggerAction_Ethereal takes nothing returns nothing
     local unit u = GetTriggerUnit()
@@ -192,12 +209,31 @@ function TriggerAction_Ethereal takes nothing returns nothing
         call SetUnitAbilityState(u, 'aetf', false, false)
     endif
 endfunction
+function TriggerAction_GoblinSapper takes nothing returns nothing
+    if (GetSpellAbilityId() == 'agsp') then
+        set bj_lastCreatedUnit = CreateUnit(GetTriggerPlayer(), 'ngsp', GetSpellTargetX(), GetSpellTargetY(), GetUnitFacing(GetTriggerUnit()))
+        call UnitApplyTimedLife(bj_lastCreatedUnit, 'BNcg', 45.0)
+    endif
+endfunction
 function TiggerAction_SelectSimskill takes unit u, integer abilcode returns nothing
-    local trigger trg
-    if(abilcode == 'aetf') then
-        set trg = CreateTrigger()
-        call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_SPELL_ENDCAST)
-        call TriggerAddAction(trg, function TriggerAction_Ethereal)
+    local trigger trig = null
+    if (abilcode == 'aetf') then
+        if (not LoadBoolean(g_hashtable, GetHandleId(u), StringHash("Ethereal"))) then
+            set trig = CreateTrigger()
+            call TriggerRegisterUnitEvent(trig, u, EVENT_UNIT_SPELL_ENDCAST)
+            call TriggerAddAction(trig, function TriggerAction_Ethereal)
+            call SaveBoolean(g_hashtable, GetHandleId(u), StringHash("Ethereal"), true)
+        endif
+        return
+    endif
+    if (abilcode == 'agsp') then
+        if (not LoadBoolean(g_hashtable, GetHandleId(u), StringHash("GoblinSapper"))) then
+            set trig = CreateTrigger()
+            call TriggerRegisterUnitEvent(trig, u, EVENT_UNIT_SPELL_EFFECT)
+            call TriggerAddAction(trig, function TriggerAction_GoblinSapper)
+            call SaveBoolean(g_hashtable, GetHandleId(u), StringHash("GoblinSapper"), true)
+        endif
+        return
     endif
 endfunction
 function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus returns nothing
@@ -320,18 +356,6 @@ function CreateFloatText takes unit u, string s returns nothing
     call SetTextTagFadepoint(tag, 0.67)
     call TriggerSleepAction(1.67)
     call DestroyTextTag(tag)
-endfunction
-function UnitRemoveSimedAbility takes unit u, integer abilcode returns nothing
-    if (abilcode == 'aews') then
-        call UnitRemoveAbility(u, ABILITY_WELLSPRING_MANA)
-        call UnitRemoveAbility(u, ABILITY_WELLSPRING_RESTORE)
-    elseif(abilcode == 'aetf') then
-        call SetUnitAbilityState(u, 'aetf', false, false)
-        call SetUnitAbilityState(u, 'acpf', false, false)
-        call UnitRemoveAbility(u, 'acpf')
-        call UnitRemoveAbility(u, 'Aetl')
-    endif
-    call UnitRemoveAbility(u, abilcode)//remove
 endfunction
 function TriggerAction_HeroUseItem takes nothing returns nothing
     local unit  u = GetManipulatingUnit()
