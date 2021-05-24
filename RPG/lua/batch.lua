@@ -87,8 +87,10 @@ function postproc_ability(obj, abilcode)
         obj.Tip = "地精地雷"
         obj.Ubertip = "在目标位置放置一个隐藏的地雷。如果有敌人靠近地雷，则地雷会被激活，对周围的单位造成范围伤害。|n全伤害范围：<Amnx,DataA1>码|n全伤害数值：<Amnx,DataB1>点|n部分伤害范围：<Amnx,DataC1>码|n部分伤害数值：<Amnx,DataD1>点|n|n|cffffcc00最多可放置5颗地雷。|r"
         obj.Cost = 70
-        obj.Cool = 15
+        obj.Cool = 25
+        obj.Dur = 120
         obj.reqLevel = 6
+        obj.Effectsound = 'GoblinLandMineDeath'
         obj.Hotkey = 'M'
         obj.ResearchArt = obj.Art
         return

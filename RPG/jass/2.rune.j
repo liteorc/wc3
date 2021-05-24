@@ -557,8 +557,6 @@ function InitRuneSystem takes nothing returns nothing
     set p = GetLocalPlayer()
     call SetPlayerAbilityAvailable(p, ABILITY_OBSOLETE, false)
 
-    call SetPlayerTechMaxAllowed(p, 'uglm', MAX_LANDMINE_COUNT)
-
     set trg = CreateTrigger()
     call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_TRAIN_FINISH, filterMeleeTrainedUnitIsHeroBJ)
     call TriggerAddAction(trg, function TriggerAction_SetupSimSystemToTrainedHero)
