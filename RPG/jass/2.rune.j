@@ -13,7 +13,9 @@ globals
     constant integer HERO_ABILITY_LEVEL_SKIP = 2
     constant integer MAX_SKILLSLOT_COUNT = 8
 
-    constant string    ABILITYLIST_CHANNEL = "aetf,acpf,agsp,auco"
+    constant integer MAX_LANDMINE_COUNT = 5
+
+    constant string  ABILITYLIST_CHANNEL = "aetf,agsp,auco"
 endglobals
 //===========================================================================
 function SetUnitAbilityState takes unit u, integer abilcode, boolean disabled, boolean hidden returns nothing 
@@ -178,33 +180,30 @@ function SimulateUnstableConcoction takes unit u, integer abilcode  returns noth
     call ShowUnit(u, false)
     set locust = CreateUnit(GetOwningPlayer(u), 'otbr', GetUnitX(u), GetUnitY(u), GetUnitFacing(u))
     call SetUnitUseFood(locust, false)
+    call SetUnitVertexColor(locust, 64,64,64, 127)
     call UnitAddAbility(locust, 'Aloc')
-    call SetUnitVertexColor(locust, 55,55,55, 127)
+    //call UnitAddAbility(locust, 'Aetl')
     call IssueTargetOrder(locust, "unstableconcoction", GetSpellTargetUnit())
     call KillUnit(u)
 endfunction
 //===========================================================================
 function TriggerAction_CustomSpell takes nothing returns nothing
     local integer abilcode = GetSpellAbilityId()
-    local string str = C2S(abilcode)
     local unit u = GetTriggerUnit()
-    if (StringContains(ABILITYLIST_CHANNEL, str)) then
-        if (LoadBoolean(g_hashtable, GetHandleId(u), abilcode)) then
-            if (abilcode == 'aetf') then
-                call SimulateEthereal(u, abilcode)
-            elseif (abilcode == 'acpf') then
-                call SimulateCorporeal(u, abilcode)
-            elseif (abilcode == 'agsp') then
-                call SimulateSummonGoblinSapper(u, abilcode)
-            elseif (abilcode == 'auco') then
-                call SimulateUnstableConcoction(u, abilcode)
-            endif
-        endif
+    if (abilcode == 'aetf') then
+        call SimulateEthereal(u, abilcode)
+    elseif (abilcode == 'acpf') then
+        call SimulateCorporeal(u, abilcode)
+    elseif (abilcode == 'agsp') then
+        call SimulateSummonGoblinSapper(u, abilcode)
+    elseif (abilcode == 'auco') then
+        call SimulateUnstableConcoction(u, abilcode)
     endif
 endfunction
 function RegisterCustomChannelEvent takes unit u, integer abilcode returns nothing
     local trigger trig = null
-    if (StringContains(ABILITYLIST_CHANNEL, C2S(abilcode))) then
+    local string str = C2S(abilcode)
+    if (StringContains(ABILITYLIST_CHANNEL, str)) then
         set trig = LoadTriggerHandle(g_hashtable, GetHandleId(u), StringHash("CustomChannel"))
         if (trig == null) then
             set trig = CreateTrigger()
@@ -212,7 +211,6 @@ function RegisterCustomChannelEvent takes unit u, integer abilcode returns nothi
             call TriggerAddAction(trig, function TriggerAction_CustomSpell)    
             call SaveTriggerHandle(g_hashtable, GetHandleId(u), StringHash("CustomChannel"), trig)
         endif
-        call SaveBoolean(g_hashtable, GetHandleId(u), abilcode, true)
     endif
 endfunction
 //===========================================================================
@@ -558,6 +556,8 @@ function InitRuneSystem takes nothing returns nothing
 
     set p = GetLocalPlayer()
     call SetPlayerAbilityAvailable(p, ABILITY_OBSOLETE, false)
+
+    call SetPlayerTechMaxAllowed(p, 'uglm', MAX_LANDMINE_COUNT)
 
     set trg = CreateTrigger()
     call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_TRAIN_FINISH, filterMeleeTrainedUnitIsHeroBJ)

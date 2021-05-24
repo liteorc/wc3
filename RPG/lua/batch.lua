@@ -82,11 +82,15 @@ function postproc_ability(obj, abilcode)
         return
     end
     if (abilcode == 'aIpm') then
+        obj.item = 0
         obj.Name = "地精地雷"
         obj.Tip = "地精地雷"
-        obj.Ubertip = "在目标位置放置一个隐藏的地雷。如果有敌人靠近地雷，则地雷会被激活，对周围的单位造成范围伤害。|n全伤害范围：<Amnx,DataA1>码|n全伤害数值：<Amnx,DataB1>点|n部分伤害范围：<Amnx,DataC1>码|n部分伤害数值：<Amnx,DataD1>点|n|n|cffffcc00最多可放置3颗地雷。|r"
-        obj.Cost = 100
+        obj.Ubertip = "在目标位置放置一个隐藏的地雷。如果有敌人靠近地雷，则地雷会被激活，对周围的单位造成范围伤害。|n全伤害范围：<Amnx,DataA1>码|n全伤害数值：<Amnx,DataB1>点|n部分伤害范围：<Amnx,DataC1>码|n部分伤害数值：<Amnx,DataD1>点|n|n|cffffcc00最多可放置5颗地雷。|r"
+        obj.Cost = 70
+        obj.Cool = 15
         obj.reqLevel = 6
+        obj.Hotkey = 'M'
+        obj.ResearchArt = obj.Art
         return
     end
     ---------YDWE UPGRADE--------
@@ -469,7 +473,7 @@ function exec_proc()
     obj.DataF = 'corporealform'
     obj.Order = 'corporealform'
     obj.DataA= 0.7
-    obj.DataC= 9
+    obj.DataC= 25
     obj.Name = Acpf.Name
     obj.Tip = Acpf.Name
     obj.UberTip = Acpf.UberTip
@@ -535,7 +539,7 @@ function exec_proc()
     obj = slk.ability['ANcl']:new 'auco'
     obj.Name = Auco.Name
     obj.Tip = Auco.Name
-    obj.Ubertip = Auco.Tip
+    obj.Ubertip = Auco.Ubertip
     obj.Art = Auco.Art
     obj.ResearchArt = Auco.Art
     obj.ButtonPos = BUTTONPOS
@@ -545,19 +549,20 @@ function exec_proc()
     obj.targs = Auco.targs
     obj.race = Auco.race
     obj.rng = Auco.rng
-    obj.CasterArt = ''
+    obj.CasterArt = slk.ability['Apsh'].SpecialArt
     obj.TargetArt = ''
     obj.EffectArt = ''
-    obj.Animnames = 'slam'
+    obj.Animnames = 'alternate,attack'
     obj.Cost = Auco.Cost
     obj.Cool = Auco.Cool
     obj.DataA= 0.01
     obj.DataB= 1
-    obj.DataC= 5
+    obj.DataC= 25
     obj.DataD = 0.01
     obj.DataE = 0
     obj.DataF = Auco.Order
     obj.Order = Auco.Order
+    generate_item('Ruco', obj)
     -------------------------------------------------------------------------------------
     --Phoenix Fire
     obj = slk.ability['Ahpe'] : new 'apxi'
