@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------
-local ABILITYLIST = "AHbz,AHwe,ANsq,AOcr,AOwk,AHbn,AHfs,AHdr,AUim,AUts,ANba,ANdr,ANsi,AUdc,AEev,AEim,AEmb,AUsl,AUcs,AOcl,AOsf,AEer,AEfn,AUfu,AUfn,AHbh,AHtb,AHtc,ANfl,ANfa,ANms,AHds,AHhb,ANbf,ANdb,ANht,ANca,ANrf,AHfa,AOsh,AOws,AOhw,AOhx,AOsw,AEbl,AEsh,ANab,ANhs,ANso,ANfd,ANdp,ANmo,ANwm,Aadm,Aabs,Aast,Aam2,Aap1,Abof,Absk,Ablo,ACbf,Acn2,ACcv,Ache,Acmg,Acri,Acrs,Acyc,Adef,ACdv,Advm,Adcn,Adis,Aeat,Aegr,Aens,Aexh,Afae,Afbk,ACfb,Afla,Afrz,Afzy,Afra,ACcb,Assk,Ahea,Ahwd,Ainf,Aivs,Alsh,Aliq,Amdf,Amls,Amfl,ANmr,ACpa,Apig,Apsh,Apxf,Aply,Aps2,Awar,Apg2,Arai,Arej,Arpl,Arpm,Aroa,Aroc,Asal,Aesr,Aeye,Aslo,Aspo,Asps,Aspl,Asta,Atau,ACtb,Auco,Aven,Aweb,AIpm,Aobs,Aotr,Augf,Aemk,Aews"
+local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,Adef,Adtn,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,AIpm,Aobs,Aotr,Augf,Aemk,Aews,Apig,Aliq,Afrz,Afra,Aspo,Aexh,Acn2,Aven,Aeat,ANmr,ANba,AHfa,ANfa,AEim,Aadm,Aivs,Aeye,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Aps2,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ACpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,Abof,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,ANwm,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,Aast,AHds,Aesr,ANdp,Afla"
 local BUTTONPOS = {0,1}
 local REQLEVEL = 3
 local slk = require 'slk'
@@ -359,6 +359,49 @@ function prev_proc()
     obj.abillist = 'arfx'
 end
 ----------------------------------------------------------------------------------------
+function tower_defend()
+    obj = slk.ability['AIar']:new 'Atwr'
+    obj.Name = "哨塔结界-攻击力加成"
+    obj.DataA = 1
+    obj.targs = "friend,structure"
+    obj.race = "other"
+    obj.TargetArt = slk.ability['AIwd'].Targetart
+
+    obj = slk.ability['AIae']:new 'Atwe'
+    obj.Name = "哨塔结界-攻速加成"
+    obj.DataA = 0
+    obj.DataB = 1
+    obj.targs = "friend,structure"
+    obj.race = "other"
+    obj.Area = 600
+    obj.TargetArt = ''
+
+    obj = slk.unit['ohwd']:new 'ntow'
+    obj.Name = "哨塔结界"
+    obj.Art = slk.ability['AIfx'].Art--orcish battle standard
+    obj.unitSound = "SentryWard"
+    obj.file = slk.ability['AIfx'].Targetart
+    obj.abilList  = "Aeth,Avul,Atwr,Atwe"
+    obj.race = "other"
+
+    obj = slk.ability['Ahwd']:new 'Atwd'
+    obj.Name = "哨塔结界"
+    obj.UnitID = 'ntow'
+    obj.UnitSkinID = 'ntow'
+    obj.EditorSuffix = ""
+    obj.Tip = "哨塔结界"
+    obj.Ubertip = "提高范围内所有防御塔<Atwr,DataA1,%>%的攻击速度和<Atwe,DataB1,%>%的攻击力。|n持续<Atwd,Dur1>秒。"
+    obj.Art = slk.ability['AIfx'].Art--orcish battle standard
+    obj.Cost = 0
+    obj.Cool = 135
+    obj.Dur = 45
+    obj.HeroDur = 45
+    obj.BuffID = 'BOac'
+    obj.race = "other"
+    obj.checkDep = 0
+    obj.EditorSuffix = "(defend)"
+end
+----------------------------------------------------------------------------------------
 function exec_proc()
     batch_execute()
     -------------------------------------------------------------------------------------
@@ -461,7 +504,7 @@ function exec_proc()
     -------------------------------------------------------------------------------------
     --GoblinSapper
     obj = slk.ability['ANcl']:new 'agsp'
-    obj.Name = "召唤地精工兵"
+    obj.Name = "地精工兵"
     obj.Tip = obj.Name
     obj.Ubertip = "召唤一支地精工兵爆破小队，对付建筑效果极佳。|n|cffffcc00能“咔嘣”地面单位和树木，在小范围内造成<Asds,DataB1>点伤害。"
     obj.Art = slk.unit['ngsp'].Art
@@ -487,52 +530,42 @@ function exec_proc()
     obj.Order = 'snapper'
     generate_item('Rgsp', obj)
     -------------------------------------------------------------------------------------
-    obj = slk.ability['AIar']:new 'Atwr'
-    obj.Name = "哨塔结界-攻击力加成"
-    obj.DataA = 1
-    obj.targs = "friend,structure"
-    obj.race = "other"
-    obj.TargetArt = slk.ability['AIwd'].Targetart
-
-    obj = slk.ability['AIae']:new 'Atwe'
-    obj.Name = "哨塔结界-攻速加成"
-    obj.DataA = 0
-    obj.DataB = 1
-    obj.targs = "friend,structure"
-    obj.race = "other"
-    obj.Area = 600
+    --Unstable Concoction
+    local Auco =  slk.ability['Auco']
+    obj = slk.ability['ANcl']:new 'auco'
+    obj.Name = Auco.Name
+    obj.Tip = Auco.Name
+    obj.Ubertip = Auco.Tip
+    obj.Art = Auco.Art
+    obj.ResearchArt = Auco.Art
+    obj.ButtonPos = BUTTONPOS
+    obj.levels = Auco.levels
+    obj.reqLevel = REQLEVEL
+    obj.Hotkey = Auco.Hotkey
+    obj.targs = Auco.targs
+    obj.race = Auco.race
+    obj.rng = Auco.rng
+    obj.CasterArt = ''
     obj.TargetArt = ''
-
-    obj = slk.unit['ohwd']:new 'ntow'
-    obj.Name = "哨塔结界"
-    obj.Art = slk.ability['AIfx'].Art--orcish battle standard
-    obj.unitSound = "SentryWard"
-    obj.file = slk.ability['AIfx'].Targetart
-    obj.abilList  = "Aeth,Avul,Atwr,Atwe"
-    obj.race = "other"
-
-    obj = slk.ability['Ahwd']:new 'Atwd'
-    obj.Name = "哨塔结界"
-    obj.UnitID = 'ntow'
-    obj.UnitSkinID = 'ntow'
-    obj.EditorSuffix = ""
-    obj.Tip = "哨塔结界"
-    obj.Ubertip = "提高范围内所有防御塔<Atwr,DataA1,%>%的攻击速度和<Atwe,DataB1,%>%的攻击力。|n持续<Atwd,Dur1>秒。"
-    obj.Art = slk.ability['AIfx'].Art--orcish battle standard
-    obj.Cost = 0
-    obj.Cool = 135
-    obj.Dur = 45
-    obj.HeroDur = 45
-    obj.BuffID = 'BOac'
-    obj.race = "other"
-    obj.checkDep = 0
-    obj.EditorSuffix = "(defend)"
+    obj.EffectArt = ''
+    obj.Animnames = 'slam'
+    obj.Cost = Auco.Cost
+    obj.Cool = Auco.Cool
+    obj.DataA= 0.01
+    obj.DataB= 1
+    obj.DataC= 5
+    obj.DataD = 0.01
+    obj.DataE = 0
+    obj.DataF = Auco.Order
+    obj.Order = Auco.Order
     -------------------------------------------------------------------------------------
     --Phoenix Fire
     obj = slk.ability['Ahpe'] : new 'apxi'
     obj.ButtonPos = BUTTONPOS
     obj.Tip =  slk.ability['apxf'].Tip
     obj.Ubertip =  slk.ability['apxf'].Ubertip
+    -------------------------------------------------------------------------------------
+    tower_defend()--Tower
 end
 ----------------------------------------------------------------------------------------
 function post_proc()

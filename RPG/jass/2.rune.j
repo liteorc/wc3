@@ -12,6 +12,8 @@ globals
 
     constant integer HERO_ABILITY_LEVEL_SKIP = 2
     constant integer MAX_SKILLSLOT_COUNT = 8
+
+    constant string    ABILITYLIST_CHANNEL = "aetf,acpf,agsp,auco"
 endglobals
 //===========================================================================
 function SetUnitAbilityState takes unit u, integer abilcode, boolean disabled, boolean hidden returns nothing 
@@ -152,6 +154,68 @@ function UpdateSimslotsStatus takes unit u returns nothing
     endif
 endfunction
 //===========================================================================
+function SimulateEthereal takes unit u, integer abilcode returns nothing
+    call SetUnitAbilityState(u, abilcode, false, true)
+    set abilcode = 'acpf'
+    call SetUnitAbilityState(u, abilcode, false, false)
+    call BlzStartUnitAbilityCooldown(u, abilcode, 29.3)
+    set abilcode = 'Aetl'
+    call UnitAddAbility(u, abilcode)
+    call BlzUnitHideAbility(u, abilcode, true)
+    call UnitMakeAbilityPermanent(u, true, abilcode)
+endfunction
+function SimulateCorporeal takes unit u, integer abilcode returns nothing
+    call UnitRemoveAbility(u, 'Aetl')
+    call SetUnitAbilityState(u, 'acpf', false, true)
+    call SetUnitAbilityState(u, 'aetf', false, false)
+endfunction
+function SimulateSummonGoblinSapper takes unit u, integer abilcode  returns nothing
+    set u = CreateUnit(GetOwningPlayer(u), 'ngsp', GetSpellTargetX(), GetSpellTargetY(), GetUnitFacing(u))
+    call UnitApplyTimedLife(u, 'BNcg', 45.0)
+endfunction
+function SimulateUnstableConcoction takes unit u, integer abilcode  returns nothing
+    local unit locust
+    call ShowUnit(u, false)
+    set locust = CreateUnit(GetOwningPlayer(u), 'otbr', GetUnitX(u), GetUnitY(u), GetUnitFacing(u))
+    call SetUnitUseFood(locust, false)
+    call UnitAddAbility(locust, 'Aloc')
+    call SetUnitVertexColor(locust, 55,55,55, 127)
+    call IssueTargetOrder(locust, "unstableconcoction", GetSpellTargetUnit())
+    call KillUnit(u)
+endfunction
+//===========================================================================
+function TriggerAction_CustomSpell takes nothing returns nothing
+    local integer abilcode = GetSpellAbilityId()
+    local string str = C2S(abilcode)
+    local unit u = GetTriggerUnit()
+    if (StringContains(ABILITYLIST_CHANNEL, str)) then
+        if (LoadBoolean(g_hashtable, GetHandleId(u), abilcode)) then
+            if (abilcode == 'aetf') then
+                call SimulateEthereal(u, abilcode)
+            elseif (abilcode == 'acpf') then
+                call SimulateCorporeal(u, abilcode)
+            elseif (abilcode == 'agsp') then
+                call SimulateSummonGoblinSapper(u, abilcode)
+            elseif (abilcode == 'auco') then
+                call SimulateUnstableConcoction(u, abilcode)
+            endif
+        endif
+    endif
+endfunction
+function RegisterCustomChannelEvent takes unit u, integer abilcode returns nothing
+    local trigger trig = null
+    if (StringContains(ABILITYLIST_CHANNEL, C2S(abilcode))) then
+        set trig = LoadTriggerHandle(g_hashtable, GetHandleId(u), StringHash("CustomChannel"))
+        if (trig == null) then
+            set trig = CreateTrigger()
+            call TriggerRegisterUnitEvent(trig, u, EVENT_UNIT_SPELL_EFFECT)
+            call TriggerAddAction(trig, function TriggerAction_CustomSpell)    
+            call SaveTriggerHandle(g_hashtable, GetHandleId(u), StringHash("CustomChannel"), trig)
+        endif
+        call SaveBoolean(g_hashtable, GetHandleId(u), abilcode, true)
+    endif
+endfunction
+//===========================================================================
 function UnitAddSimedAbility takes unit u, integer abilcode returns nothing
     call UnitAddAbility(u, abilcode)
     call UnitMakeAbilityPermanent(u, true, abilcode)
@@ -184,56 +248,13 @@ function UnitRemoveSimedAbility takes unit u, integer abilcode returns nothing
         call UnitRemoveAbility(u, 'Aetl')
     endif
 endfunction
+//===========================================================================
 function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level returns nothing
     if (level > 1) then
         call SetUnitAbilityLevel(u, abilcode, level)
      else
         call UnitAddSimedAbility(u, abilcode)
-    endif
-endfunction
-function TriggerAction_Ethereal takes nothing returns nothing
-    local unit u = GetTriggerUnit()
-    local integer abilcode = GetSpellAbilityId()
-    if (abilcode == 'aetf' ) then
-        call SetUnitAbilityState(u, abilcode, false, true)
-        set abilcode = 'acpf'
-        call SetUnitAbilityState(u, abilcode, false, false)
-        call BlzStartUnitAbilityCooldown(u, abilcode, 29.3)
-        set abilcode = 'Aetl'
-        call UnitAddAbility(u, abilcode)
-        call BlzUnitHideAbility(u, abilcode, true)
-        call UnitMakeAbilityPermanent(u, true, abilcode)
-    elseif (abilcode == 'acpf' ) then
-        call UnitRemoveAbility(u, 'Aetl')
-        call SetUnitAbilityState(u, 'acpf', false, true)
-        call SetUnitAbilityState(u, 'aetf', false, false)
-    endif
-endfunction
-function TriggerAction_GoblinSapper takes nothing returns nothing
-    if (GetSpellAbilityId() == 'agsp') then
-        set bj_lastCreatedUnit = CreateUnit(GetTriggerPlayer(), 'ngsp', GetSpellTargetX(), GetSpellTargetY(), GetUnitFacing(GetTriggerUnit()))
-        call UnitApplyTimedLife(bj_lastCreatedUnit, 'BNcg', 45.0)
-    endif
-endfunction
-function TiggerAction_SelectSimskill takes unit u, integer abilcode returns nothing
-    local trigger trig = null
-    if (abilcode == 'aetf') then
-        if (not LoadBoolean(g_hashtable, GetHandleId(u), StringHash("Ethereal"))) then
-            set trig = CreateTrigger()
-            call TriggerRegisterUnitEvent(trig, u, EVENT_UNIT_SPELL_ENDCAST)
-            call TriggerAddAction(trig, function TriggerAction_Ethereal)
-            call SaveBoolean(g_hashtable, GetHandleId(u), StringHash("Ethereal"), true)
-        endif
-        return
-    endif
-    if (abilcode == 'agsp') then
-        if (not LoadBoolean(g_hashtable, GetHandleId(u), StringHash("GoblinSapper"))) then
-            set trig = CreateTrigger()
-            call TriggerRegisterUnitEvent(trig, u, EVENT_UNIT_SPELL_EFFECT)
-            call TriggerAddAction(trig, function TriggerAction_GoblinSapper)
-            call SaveBoolean(g_hashtable, GetHandleId(u), StringHash("GoblinSapper"), true)
-        endif
-        return
+        call RegisterCustomChannelEvent(u, abilcode)
     endif
 endfunction
 function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus returns nothing
@@ -250,8 +271,6 @@ function SelectHeroSimskill takes unit u, integer slotcode, boolean updateStatus
     if updateStatus then
         call UpdateSimslotsStatusEnum(u, slotnumber)
     endif
-    //post-process
-    call TiggerAction_SelectSimskill(u, abilcode)
 endfunction
 //===========================================================================
 function ModifyHeroSkillPointsEx takes unit whichHero, string modifyMethod, integer points returns nothing
@@ -487,9 +506,9 @@ function ReviseEngineeringUpgrade takes unit u returns nothing
     set abilcode = 'ANg0' + level
     call SaveUnitSimedAbility(u, 4, abilcode)    
 
-    //6:Demolish
+    //5:Demolish
     set abilcode = 'ANd0' + level
-    call SaveUnitSimedAbility(u, 6, abilcode)     
+    call SaveUnitSimedAbility(u, 5, abilcode)     
 
     ///fixed blizzard's bug
     // call UnitRemoveAbility(u, abilcode)
@@ -517,7 +536,7 @@ function TriggerAction_SetupSimSystemToHiredHero takes nothing returns nothing
     local unit u  = GetSoldUnit()
     local trigger trg
     if (GetPlayerController(GetOwningPlayer(u)) == MAP_CONTROL_USER) then
-        call UnitSetupSimSystem(u)     
+        call UnitSetupSimSystem(u) 
         if (GetUnitTypeId(u)  == 'Ntin') then
             set trg = CreateTrigger()
             call TriggerRegisterUnitEvent(trg, u, EVENT_UNIT_HERO_LEVEL)
