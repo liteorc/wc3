@@ -16,6 +16,8 @@ globals
     constant integer MAX_LANDMINE_COUNT = 5
 
     constant string  ABILITYLIST_CHANNEL = "aetf,agsp,auco"
+
+    boolexpr           filterLivingPlayerUnitsOfTypeIdCounted      = null
 endglobals
 //===========================================================================
 function SetUnitAbilityState takes unit u, integer abilcode, boolean disabled, boolean hidden returns nothing 
@@ -250,7 +252,7 @@ endfunction
 function SetUnitSimedAbilityLevel takes unit u, integer abilcode, integer level returns nothing
     if (level > 1) then
         call SetUnitAbilityLevel(u, abilcode, level)
-     else
+     else//add new ability
         call UnitAddSimedAbility(u, abilcode)
         call RegisterCustomChannelEvent(u, abilcode)
     endif
@@ -545,17 +547,46 @@ function TriggerAction_SetupSimSystemToHiredHero takes nothing returns nothing
         endif
     endif
 endfunction
-//===========================================================================
 function TriggerAction_SetupSimSystemToTrainedHero takes nothing returns nothing
     call UnitSetupSimSystem(GetTrainedUnit())
+endfunction
+//===========================================================================
+function TriggerAction_UnitSummon takes nothing returns nothing
+    local unit u = GetSummonedUnit()
+    local integer unitId = GetUnitTypeId(u)
+    if (unitId == 'nglm') then
+        set bj_lastCreatedGroup = CreateGroup()
+        set bj_groupEnumTypeId = unitId
+        set bj_groupCountUnits = 0
+        call GroupEnumUnitsOfPlayer(bj_lastCreatedGroup, GetOwningPlayer(u), filterLivingPlayerUnitsOfTypeIdCounted)
+        if (bj_groupCountUnits > MAX_LANDMINE_COUNT) then
+            call KillUnit(FirstOfGroup(bj_lastCreatedGroup))
+        endif
+        call DestroyGroup(bj_lastCreatedGroup)
+    endif
+endfunction
+//===========================================================================
+function FilterLivingPlayerUnitsOfTypeIdAndCounted takes nothing returns boolean
+    local unit filterUnit = GetFilterUnit()
+    if (IsUnitAliveBJ(filterUnit) and GetUnitTypeId(filterUnit) == bj_groupEnumTypeId) then
+        set bj_groupCountUnits = bj_groupCountUnits + 1
+        return true
+    endif
+    return false
 endfunction
 //===========================================================================
 function InitRuneSystem takes nothing returns nothing
     local trigger trg
     local player p
 
+    set filterLivingPlayerUnitsOfTypeIdCounted = Filter(function FilterLivingPlayerUnitsOfTypeIdAndCounted)
+
     set p = GetLocalPlayer()
     call SetPlayerAbilityAvailable(p, ABILITY_OBSOLETE, false)
+
+    set  trg = CreateTrigger()
+    call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_SUMMON, null)
+    call TriggerAddAction(trg, function TriggerAction_UnitSummon)
 
     set trg = CreateTrigger()
     call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_TRAIN_FINISH, filterMeleeTrainedUnitIsHeroBJ)

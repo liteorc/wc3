@@ -1,7 +1,20 @@
 ------------------------------------------------------------------------------------------------------------------
-local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,Adef,Adtn,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,AIpm,Aobs,Aotr,Augf,Aemk,Aews,Apig,Aliq,Afrz,Afra,Aspo,Aexh,Acn2,Aven,Aeat,ANmr,ANba,AHfa,ANfa,AEim,Aadm,Aivs,Aeye,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Aps2,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ACpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,Abof,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,ANwm,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,Aast,AHds,Aesr,ANdp,Afla"
+local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,Adef,Adtn,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,AIpm,Aobs,Aotr,Augf,Aemk,Aews,Apig,Ahr3,Aliq,Afrz,Afra,Aspo,Aexh,Acn2,Aven,Aeat,ANmr,ANba,AHfa,ANfa,AEim,Aadm,Aivs,Aeye,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Aps2,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ACpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,Abof,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,ANwm,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,Aast,AHds,Aesr,ANdp,Afla"
+------------------------------------------------------------------------------------------------------------------
 local BUTTONPOS = {0,1}
 local REQLEVEL = 3
+--ANcl.DataB
+local CHANNELTYPE_INSTANT = 0
+local CHANNELTYPE_UNIT = 1
+local CHANNELTYPE_POINT = 2
+local CHANNELTYPE_UNITPOINT = 3
+--ANcl.DataC
+local CHANNELFLAGS_VISIBLE = 1
+local CHANNELFLAGS_TARGIMAGE = 2
+local CHANNELFLAGS_PHYSICAL = 4
+local CHANNELFLAGS_UNIVERSAL = 8
+local CHANNELFLAGS_UNIQUE = 16
+------------------------------------------------------------------------------------------------------------------
 local slk = require 'slk'
 ------------------------------------------------------------------------------------------------------------------
 function coerce_research_art(path, onoff)
@@ -64,16 +77,6 @@ function postproc_ability(obj, abilcode)
         obj.ResearchArt = obj.Art
         return
     end
-    if (abilcode == 'aivs') then
-        obj.ResearchArt = obj.Art
-        obj.targs = obj.targs..',self'
-        return
-    end
-    if (abilcode == 'alsh') then
-        obj.ResearchArt = obj.Art
-        obj.targs = obj.targs..',self'
-        return
-    end
     if (abilcode == 'aNmr') then
         obj.Art ="ReplaceableTextures\\CommandButtons\\btnlament.blp"
         obj.ResearchArt = obj.Art
@@ -86,10 +89,9 @@ function postproc_ability(obj, abilcode)
         obj.Name = "地精地雷"
         obj.Tip = "地精地雷"
         obj.Ubertip = "在目标位置放置一个隐藏的地雷。如果有敌人靠近地雷，则地雷会被激活，对周围的单位造成范围伤害。|n全伤害范围：<Amnx,DataA1>码|n全伤害数值：<Amnx,DataB1>点|n部分伤害范围：<Amnx,DataC1>码|n部分伤害数值：<Amnx,DataD1>点|n|n|cffffcc00最多可放置5颗地雷。|r"
-        obj.Cost = 70
+        obj.Cost = 100
         obj.Cool = 25
-        obj.Dur = 120
-        obj.reqLevel = 6
+        obj.reqLevel = REQLEVEL
         obj.Effectsound = 'GoblinLandMineDeath'
         obj.Hotkey = 'M'
         obj.ResearchArt = obj.Art
@@ -335,7 +337,7 @@ function prev_proc()
 
     obj = slk.ability['ANcl'] : new 'arpt'
     obj.Name = "(桥梁目标)"
-    obj.DataB = 1
+    obj.DataB = CHANNELTYPE_UNIT
     obj.Art = ''
     obj.hero = 0
     obj.item = 1
@@ -446,7 +448,8 @@ function exec_proc()
     obj.DataF = 'etherealform'
     obj.Order = 'etherealform'
     obj.DataA= 0.7
-    obj.DataC= 5
+    obj.DataB= CHANNELTYPE_INSTANT
+    obj.DataC= CHANNELFLAGS_VISIBLE + CHANNELFLAGS_UNIVERSAL
     obj.Name = Aetf.Name
     obj.Tip = Aetf.Name
     obj.UberTip = Aetf.UberTip
@@ -475,7 +478,8 @@ function exec_proc()
     obj.DataF = 'corporealform'
     obj.Order = 'corporealform'
     obj.DataA= 0.7
-    obj.DataC= 25
+    obj.DataB= CHANNELTYPE_INSTANT
+    obj.DataC= CHANNELFLAGS_VISIBLE + CHANNELFLAGS_UNIVERSAL
     obj.Name = Acpf.Name
     obj.Tip = Acpf.Name
     obj.UberTip = Acpf.UberTip
@@ -517,7 +521,7 @@ function exec_proc()
     obj.ResearchArt = obj.Art
     obj.ButtonPos = BUTTONPOS
     obj.levels = 1
-    obj.reqLevel = REQLEVEL
+    obj.reqLevel = REQLEVEL + REQLEVEL
     obj.Hotkey = 'P'
     obj.CasterArt = ''
     obj.TargetArt = ''
@@ -528,8 +532,8 @@ function exec_proc()
     obj.Dur = 45
     obj.HeroDur = 45
     obj.DataA= 0.001
-    obj.DataB= 2
-    obj.DataC= 29
+    obj.DataB= CHANNELTYPE_POINT
+    obj.DataC= CHANNELFLAGS_VISIBLE + CHANNELFLAGS_UNIVERSAL
     obj.DataD = 0.5
     obj.DataE = 0
     obj.DataF = 'snapper'
@@ -558,8 +562,8 @@ function exec_proc()
     obj.Cost = Auco.Cost
     obj.Cool = Auco.Cool
     obj.DataA= 0.01
-    obj.DataB= 1
-    obj.DataC= 25
+    obj.DataB= CHANNELTYPE_UNIT
+    obj.DataC= CHANNELFLAGS_VISIBLE + CHANNELFLAGS_PHYSICAL
     obj.DataD = 0.01
     obj.DataE = 0
     obj.DataF = Auco.Order
@@ -576,8 +580,12 @@ function exec_proc()
 end
 ----------------------------------------------------------------------------------------
 function post_proc()
+    -----------------------------------------------------
     obj = slk.ability['aeat']
-    obj.Cool = 30.0  
+    obj.Cool = 30.0
+    -----------------------------------------------------
+    obj = slk.ability['ahr3']
+    obj.reqlevel = 0
     -----------------------------------------------------
     buf = slk.buff['BUts']:new 'bUts'
     buf.TargetArt = "Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestMountRight.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestMountLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestRight.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestLeft.mdl,Abilities\\Spells\\Undead\\ThornyShield\\ThornyShieldTargetChestRight.mdl"

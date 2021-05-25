@@ -103,6 +103,7 @@ endfunction
 function ChooseRandomName takes string str returns string 
     local string name
     local integer i = GetRandomInt(0,100)
+    call SetRandomSeed(i * R2I(GetTimeOfDay()))
     if (i > 66) then
         set i = GetRandomInt(1, 10)
         set i = ChooseRandomCreep(i)
@@ -113,7 +114,6 @@ function ChooseRandomName takes string str returns string
         set name = GetObjectName(i)
     endif
     if (StringContains(str, name)) then
-        call SetRandomSeed(R2I(GetTimeOfDay()))
         return ChooseRandomName(str)
     endif
     return name
