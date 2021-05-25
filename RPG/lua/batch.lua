@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------------------------------
-local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,Adef,Adtn,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,AIpm,Aobs,Aotr,Augf,Aemk,Aews,Apig,Ahr3,Aliq,Afrz,Afra,Aspo,Aexh,Acn2,Aven,Aeat,ANmr,ANba,AHfa,ANfa,AEim,Aadm,Aivs,Aeye,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Aps2,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ACpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,Abof,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,ANwm,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,Aast,AHds,Aesr,ANdp,Afla"
+local ABILITYLIST = "AOcr,AUts,AEev,AHbh,ANdb,ANca,Aabs,Aap1,Adef,Adtn,ACdv,Aegr,Afbk,Assk,Amdf,Awar,Asal,AIpm,Aobs,Aotr,Augf,Aemk,Aews,Apig,Ahr3,Aliq,Afrz,Afra,Aspo,Aexh,Acn2,Aven,Aeat,ANmr,ANba,AHfa,ANfa,AEim,Aadm,Aivs,Aeye,AHbn,Aspl,Aam2,Adcn,Aroa,Asta,Ahwd,Aps2,Apxf,Arpl,Arpm,Ahea,Ablo,Ainf,Acrs,Afae,Aslo,Apg2,Arej,Aroc,AUfu,AOwk,Alsh,Aply,AUsl,Acmg,ACpa,AHhb,Adis,Acyc,AHdr,AHbz,AUdc,ANhs,Asps,Apsh,AOsw,Advm,AEmb,AOhx,AOws,AHtc,ANdr,ACfb,ACtb,AEer,AEsh,Arai,ANrf,AOsh,ACcv,AUfn,AHtb,ACcb,AOhw,AUim,AOcl,ANms,AEbl,ANbf,ANmo,AUcs,Abof,ACbf,Acri,AHfs,ANfl,Aweb,ANso,ANht,ANab,Atau,ANfd,Aens,Ache,ANsi,Amfl,ANwm,AEfn,AHwe,ANsq,Absk,Afzy,Amls,AOsf,ACwe,Aast,AHds,Aesr,ANdp,Afla"
 ------------------------------------------------------------------------------------------------------------------
 local BUTTONPOS = {0,1}
 local REQLEVEL = 3
@@ -85,16 +85,16 @@ function postproc_ability(obj, abilcode)
         return
     end
     if (abilcode == 'aIpm') then
-        obj.item = 0
         obj.Name = "地精地雷"
         obj.Tip = "地精地雷"
         obj.Ubertip = "在目标位置放置一个隐藏的地雷。如果有敌人靠近地雷，则地雷会被激活，对周围的单位造成范围伤害。|n全伤害范围：<Amnx,DataA1>码|n全伤害数值：<Amnx,DataB1>点|n部分伤害范围：<Amnx,DataC1>码|n部分伤害数值：<Amnx,DataD1>点|n|n|cffffcc00最多可放置5颗地雷。|r"
-        obj.Cost = 100
-        obj.Cool = 25
-        obj.reqLevel = REQLEVEL
         obj.Effectsound = 'GoblinLandMineDeath'
         obj.Hotkey = 'M'
+        obj.item = 0
         obj.ResearchArt = obj.Art
+        obj.reqLevel = REQLEVEL+REQLEVEL
+        obj.Cost = 100
+        obj.Cool = 25
         return
     end
     ---------YDWE UPGRADE--------
@@ -521,7 +521,7 @@ function exec_proc()
     obj.ResearchArt = obj.Art
     obj.ButtonPos = BUTTONPOS
     obj.levels = 1
-    obj.reqLevel = REQLEVEL + REQLEVEL
+    obj.reqLevel = REQLEVEL
     obj.Hotkey = 'P'
     obj.CasterArt = ''
     obj.TargetArt = ''
@@ -529,9 +529,9 @@ function exec_proc()
     obj.Animnames = 'spell,slam'
     obj.Cost = 100
     obj.Cool = 30
-    obj.Dur = 45
-    obj.HeroDur = 45
-    obj.DataA= 0.001
+    obj.Dur = 30
+    obj.HeroDur = 30
+    obj.DataA= 0.01
     obj.DataB= CHANNELTYPE_POINT
     obj.DataC= CHANNELFLAGS_VISIBLE + CHANNELFLAGS_UNIVERSAL
     obj.DataD = 0.5

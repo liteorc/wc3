@@ -175,7 +175,7 @@ function SimulateCorporeal takes unit u, integer abilcode returns nothing
 endfunction
 function SimulateSummonGoblinSapper takes unit u, integer abilcode  returns nothing
     set u = CreateUnit(GetOwningPlayer(u), 'ngsp', GetSpellTargetX(), GetSpellTargetY(), GetUnitFacing(u))
-    call UnitApplyTimedLife(u, 'BNcg', 45.0)
+    call UnitApplyTimedLife(u, 'BNcg', 30.0)
 endfunction
 function SimulateUnstableConcoction takes unit u, integer abilcode  returns nothing
     local unit locust
