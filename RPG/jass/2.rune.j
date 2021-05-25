@@ -558,9 +558,10 @@ function TriggerAction_UnitSummon takes nothing returns nothing
         set bj_lastCreatedGroup = CreateGroup()
         set bj_groupEnumTypeId = unitId
         set bj_groupCountUnits = 0
+        set bj_groupRandomCurrentPick = null
         call GroupEnumUnitsOfPlayer(bj_lastCreatedGroup, GetOwningPlayer(u), filterLivingPlayerUnitsOfTypeIdCounted)
         if (bj_groupCountUnits > MAX_LANDMINE_COUNT) then
-            call KillUnit(FirstOfGroup(bj_lastCreatedGroup))
+            call KillUnit(bj_groupRandomCurrentPick)
         endif
         call DestroyGroup(bj_lastCreatedGroup)
     endif
@@ -570,6 +571,7 @@ function FilterLivingPlayerUnitsOfTypeIdAndCounted takes nothing returns boolean
     local unit filterUnit = GetFilterUnit()
     if (IsUnitAliveBJ(filterUnit) and GetUnitTypeId(filterUnit) == bj_groupEnumTypeId) then
         set bj_groupCountUnits = bj_groupCountUnits + 1
+        set bj_groupRandomCurrentPick = filterUnit
         return true
     endif
     return false
