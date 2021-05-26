@@ -92,7 +92,7 @@ function postproc_ability(obj, abilcode)
         obj.Hotkey = 'M'
         obj.item = 0
         obj.ResearchArt = obj.Art
-        obj.reqLevel = REQLEVEL+REQLEVEL
+        obj.reqLevel = REQLEVEL
         obj.Cost = 100
         obj.Cool = 25
         return
