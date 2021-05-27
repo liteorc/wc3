@@ -97,6 +97,15 @@ function postproc_ability(obj, abilcode)
         obj.Cool = 25
         return
     end
+    if(abilcode == 'aNwm') then
+        obj.Tip1 = string.format("%s  - [|cffffcc001级|r]", obj.Name)
+        obj.Tip2 = string.format("%s  - [|cffffcc002级|r]", obj.Name)
+        obj.Tip3 = string.format("%s  - [|cffffcc003级|r]", obj.Name)
+        obj.UberTip1 = "召唤<ANwm,DataA1>个奴仆去执行主人的意愿。每个奴仆具有<ncfs,realHP>点生命值和<ncfs,mindmg1>-<ncfs,maxdmg1>点攻击力。|n持续<ANwm,Dur1>秒。|n|n|cffffcc00能攻击地面单位。|r"
+        obj.UberTip2 = "召唤<ANwm,DataA2>个奴仆去执行主人的意愿。每个奴仆具有<ntws,realHP>点生命值和<ntws,mindmg1>-<ntws,maxdmg1>点攻击力。|n持续<ANwm,Dur2>秒。|n|n|cffffcc00能攻击地面单位。|r"
+        obj.UberTip3 = "召唤<ANwm,DataA3>个奴仆去执行主人的意愿。每个奴仆具有<nsns,realHP>点生命值和<nsns,mindmg1>-<nsns,maxdmg1>点攻击力，且具有驱除魔法和减速术技能。|n持续<ANwm,Dur3>秒。|n|n|cffffcc00能攻击地面和空中单位。|r"
+        obj.Researchubertip = "召唤<ANwm,DataA1>个奴仆去执行主人的意愿。|n持续<ANwm,Dur1>秒。|n|n|cffffcc001级|r - <ncfs,realHP>点生命值，<ncfs,mindmg1>-<ncfs,maxdmg1>点攻击力。|n|cffffcc002级|r - <ntws,realHP>点生命值，<ntws,mindmg1>-<ntws,maxdmg1>点攻击力。|n|cffffcc003级|r - <nsns,realHP>点生命值，<nsns,mindmg1>-<nsns,maxdmg1>点攻击力，且具有驱除魔法和减速术技能。"
+    end
     ---------YDWE UPGRADE--------
     if (abilcode == 'apxf') then
         obj.Ubertip = "凤凰会向周围的敌人喷吐魔法烈焰，造成<Apxf,DataA1>点初始伤害，以及每秒<Apxf,DataB1>点的燃烧伤害，持续<Apxf,Dur1>秒。"
@@ -367,6 +376,7 @@ function prev_proc()
     obj.abillist = 'arfx'
 end
 ----------------------------------------------------------------------------------------
+--[[
 function tower_defend()
     obj = slk.ability['AIar']:new 'Atwr'
     obj.Name = "哨塔结界-攻击力加成"
@@ -409,6 +419,7 @@ function tower_defend()
     obj.checkDep = 0
     obj.EditorSuffix = "(defend)"
 end
+--]]
 ----------------------------------------------------------------------------------------
 function exec_proc()
     batch_execute()
@@ -467,7 +478,7 @@ function exec_proc()
     obj.TargetArt = ''
     obj.EffectArt = ''
     obj.Targetattach = ''
-    obj.EditorSuffix = "(clone)"
+    obj.EditorSuffix = "(channel)"
     generate_item('Retf', obj)
 
     local Acpf = slk.ability['Acpf']
@@ -497,7 +508,7 @@ function exec_proc()
     obj.TargetArt = ''
     obj.EffectArt = ''
     obj.Targetattach = ''
-    obj.EditorSuffix = "(clone)"
+    obj.EditorSuffix = "(channel)"
     -------------------------------------------------------------------------------------
     --Well Spring
     local tech = slk.upgrade['Rews']
@@ -538,6 +549,7 @@ function exec_proc()
     obj.DataE = 0
     obj.DataF = 'snapper'
     obj.Order = 'snapper'
+    obj.EditorSuffix = "(channel)"
     generate_item('Rgsp', obj)
     -------------------------------------------------------------------------------------
     --Unstable Concoction
@@ -568,6 +580,7 @@ function exec_proc()
     obj.DataE = 0
     obj.DataF = Auco.Order
     obj.Order = Auco.Order
+    obj.EditorSuffix = "(channel)"
     generate_item('Ruco', obj)
     -------------------------------------------------------------------------------------
     --Phoenix Fire
@@ -576,7 +589,7 @@ function exec_proc()
     obj.Tip =  slk.ability['apxf'].Tip
     obj.Ubertip =  slk.ability['apxf'].Ubertip
     -------------------------------------------------------------------------------------
-    tower_defend()--Tower
+    --tower_defend()--Tower
 end
 ----------------------------------------------------------------------------------------
 function post_proc()

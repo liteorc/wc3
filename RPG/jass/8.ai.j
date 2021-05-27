@@ -165,9 +165,9 @@ function EnumAIReplenishHero takes nothing returns nothing
     local player p = GetEnumPlayer()
     local integer heroCount = GetPlayerHeroCount(p)
     if (heroCount < bj_MELEE_HERO_LIMIT) then    
-        set bj_lastCreatedUnit = CreateUnit(p, PlaceRandomNeutralHero(), GetPlayerStartLocationX(), GetPlayerStartLocationY(), 0)
+        set bj_lastCreatedUnit = CreateUnit(p, PlaceRandomNeutralHero(), GetPlayerStartLocationX(p), GetPlayerStartLocationY(p), 0)
         call SetUnitUseFood(bj_lastCreatedUnit, false)
-        call TriggerRegister_AINeutralHeroSelectSkill(bj_lastCreatedUnit)
+        call TriggerRegister_AINeutralHeroHeroLevelup(bj_lastCreatedUnit)
         if (heroCount + 1 >= bj_MELEE_HERO_LIMIT) then
             call ForceRemovePlayer(g_neutralHeroAI, p)
         endif
@@ -185,8 +185,8 @@ function InitAI takes nothing returns nothing
     local string str
     local string name
 
-    set filterEnumStuctureIsTownhall = Filter(Filter_IsUnitTypeOfTownhall)
-    set filterEnumStuctureIsGoldmine = Filter(Filter_IsUnitTypeOfGoldmine)
+    set filterEnumStuctureIsTownhall = Filter(function Filter_IsUnitTypeOfTownhall)
+    set filterEnumStuctureIsGoldmine = Filter(function Filter_IsUnitTypeOfGoldmine)
     set g_neutralHeroAI = CreateForce()
 
     set str = ""
@@ -219,7 +219,7 @@ function InitAI takes nothing returns nothing
 
             set trg = CreateTrigger()
             call TriggerRegisterTimerEvent(trg, 360.0, true)
-            call TriggerAddAction(TriggerAction_AITimerOfLongPeriod)
+            call TriggerAddAction(trg, function TriggerAction_AITimerOfLongPeriod)
         endif
         set i = i + 1
         exitwhen i == bj_MAX_PLAYERS

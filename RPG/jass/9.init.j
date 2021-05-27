@@ -36,4 +36,6 @@ endfunction
 function EndInit takes nothing  returns nothing
    call InitUser()
    call InitAI()
+
+   
 endfunction
