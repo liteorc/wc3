@@ -342,7 +342,12 @@ function InitDefaultSimslotList takes unit u returns nothing
     local integer slot
     local string skillList
 
-    set skillList = LoadUnitHeroAbilityList(GetUnitTypeId(u))
+    set i =GetUnitTypeId(u)
+    if (i == 'Ntin') then
+        set skillList = "aNsy,aNcs,aNeg,aNrg,aNde"//special
+    else
+        set skillList = LoadUnitHeroAbilityList(i)
+    endif
     set i = 0
     set slot = 1
     set len = StringLength(skillList)

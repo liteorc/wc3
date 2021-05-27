@@ -67,7 +67,7 @@ function InitDefaultHeroAbilList takes nothing returns nothing
     call SaveUnitHeroAbilityList('Nalc', "ANhs,ANcr,ANab,ANtm")
     call SaveUnitHeroAbilityList('Nplh', "ANrf,ANht,ANca,ANdo")
     call SaveUnitHeroAbilityList('Nfir', "ANso,ANlm,ANia,ANvc")
-    call SaveUnitHeroAbilityList('Ntin', "aNsy,aNcs,aNeg,aNrg,aNde")//special
+    call SaveUnitHeroAbilityList('Ntin', "ANsy,ANcs,ANeg,ANrg")
 endfunction
 function InitDefaultHeroIcon takes nothing returns nothing
     call SaveStr(g_hashtable, 'Hamg', 'uico', "ReplaceableTextures\\CommandButtons\\BTNHeroArchMage.blp")

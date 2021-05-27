@@ -1,3 +1,4 @@
+
 //===========================================================================
 function Filter_ConstructIsTower takes nothing returns boolean
     local integer typeid = GetUnitTypeId(GetFilterUnit())
@@ -17,135 +18,14 @@ function InitUser takes nothing returns nothing
     call SetPlayerAbilityAvailable(p, 'Ashm', false)
     call SetPlayerAbilityAvailable(p, 'AIhm', false)
 
-    call SetPlayerState(p, PLAYER_STATE_FOOD_CAP_CEILING, 30)
+    //call SetPlayerState(p, PLAYER_STATE_FOOD_CAP_CEILING, 30)
     //call SetPlayerMaxHeroesAllowed(bj_MELEE_HERO_LIMIT + 1, p)
  
     set trg = CreateTrigger()
+    call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_UPGRADE_FINISH, Filter(function Filter_ConstructIsTower))
     call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_CONSTRUCT_FINISH, Filter(function Filter_ConstructIsTower))
-    call TriggerAddAction(trg, function TriggerAction_TowerConstructFinish)
+    call TriggerAddAction(trg, function TriggerAction_TowerConstructFinish)   
 endfunction 
-//===========================================================================
-function Filter_IsUnitTypeOfGoldMine takes nothing returns boolean
-    if( GetUnitTypeId(GetFilterUnit()) == 'ngol') then
-        set bj_groupCountUnits = bj_groupCountUnits + 1
-        return true
-    endif
-    return false
-endfunction
-function Filter_AISurrender takes nothing returns boolean
-    local unit u = GetFilterUnit()
-    local filterfunc filter
-    if (IsUnitDeadBJ(u))then
-        return false
-    endif
-    if (IsUnitType(u, UNIT_TYPE_PEON)) then
-        set bj_forLoopAIndex = bj_forLoopAIndex + 1
-        return false
-    endif
-    if (bj_groupCountUnits < 1) then
-        if (GetUnitTypeId(u) == 'egol' or GetUnitTypeId(u) == 'ugol') then
-            set bj_groupCountUnits = bj_groupCountUnits + 1
-            return false
-        endif
-    endif
-    if (bj_forLoopBIndex < 1 and IsUnitType(u, UNIT_TYPE_TOWNHALL)) then
-        set bj_forLoopBIndex = bj_forLoopBIndex + 1
-        if (bj_groupCountUnits < 1) then
-            set bj_lastCreatedGroup = CreateGroup()
-            set filter = Filter(function Filter_IsUnitTypeOfGoldMine)
-            call GroupEnumUnitsInRangeCounted(bj_lastCreatedGroup, GetUnitX(u), GetUnitY(u), 900.0, filter, 1)
-            call DestroyFilter(filter)
-            call DestroyGroup(bj_lastCreatedGroup)
-        endif
-        return false
-    endif
-    return false
-endfunction
-function TriggerAction_AISurrender takes nothing returns nothing
-    local player p = GetTriggerPlayer()
-    local group g
-    local filterfunc filter 
-    local boolean defeated = false
-    if (GetPlayerTechCount(p, 'HERO', false) > 0) then
-        return
-    endif
-
-    set bj_forLoopAIndex = 0//peon
-    set bj_forLoopBIndex = 0//town
-    set bj_groupCountUnits = 0//goldmine
-    set g = CreateGroup()
-    set filter = Filter(function Filter_AISurrender)
-    call GroupEnumUnitsOfPlayer(g, p, filter)
-    call DestroyGroup(g)
-    call DestroyFilter(filter)
-    if (bj_forLoopAIndex > 0) then//has peon
-        set defeated = bj_groupCountUnits < 1 and GetPlayerState(p, PLAYER_STATE_RESOURCE_GOLD) < 500
-    else//no peon
-        if (bj_forLoopBIndex > 0) then//has town
-            set bj_forLoopBIndexEnd = GetPlayerState(p, PLAYER_STATE_RESOURCE_FOOD_USED)
-            set defeated = bj_forLoopBIndexEnd < 40 and bj_forLoopBIndexEnd > GetPlayerState(p, PLAYER_STATE_RESOURCE_FOOD_CAP)
-        else//no town
-            set defeated = true
-        endif
-    endif
-    if defeated then
-        call BlzDisplayChatMessage(p, 0, "gg")
-        call CachePlayerHeroData(p)
-        call MeleeDoLeave(p)
-        call MakeUnitsPassiveForPlayer(p)
-        call MeleeCheckForLosersAndVictors()
-        call DestroyTrigger(GetTriggeringTrigger())
-    endif
-endfunction
-function TriggerCondition_DeathIsConstruct takes nothing returns boolean
-    return IsUnitType(GetDyingUnit(), UNIT_TYPE_STRUCTURE)
-endfunction
-function ChooseRandomName takes string str returns string 
-    local string name
-    local integer i = GetRandomInt(0,100)
-    call SetRandomSeed(i * R2I(GetTimeOfDay()))
-    if (i > 66) then
-        set i = GetRandomInt(1, 10)
-        set i = ChooseRandomCreep(i)
-        set name = GetObjectName(i)
-    else
-        set i = GetRandomInt(1, 10)
-        set i = ChooseRandomItem(i)
-        set name = GetObjectName(i)
-    endif
-    if (StringContains(str, name)) then
-        return ChooseRandomName(str)
-    endif
-    return name
-endfunction
-
-function InitAI takes nothing returns nothing
-    local integer i
-    local player  p
-    local trigger trg
-    local unitpool pool
-    local string str
-    local string name
-
-    set str = ""
-    set i = 0
-    loop
-        set p = Player(i)
-        if ((GetPlayerSlotState(p) == PLAYER_SLOT_STATE_PLAYING) and  (GetPlayerController(p) == MAP_CONTROL_COMPUTER)) then
-            set name = ChooseRandomName(str)
-            call SetPlayerName(p, name)
-            set str = name + "#" + str
-            call BlzDisplayChatMessage(p, 0, "gl")
-
-            set trg = CreateTrigger()
-            call TriggerRegisterPlayerUnitEvent(trg, p, EVENT_PLAYER_UNIT_DEATH, null)
-            call TriggerAddCondition(trg, Condition(function TriggerCondition_DeathIsConstruct))
-            call TriggerAddAction(trg, function TriggerAction_AISurrender)
-        endif
-        set i = i + 1
-        exitwhen i == bj_MAX_PLAYERS
-    endloop
-endfunction
 //===========================================================================
 function BeginInit takes nothing  returns nothing
     call InitDatabase()
